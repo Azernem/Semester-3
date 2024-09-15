@@ -1,4 +1,4 @@
-// <copyright file="ParallelMultiply.cs" company="NematMusaev">
+// <copyright file="ParallelMultiply.Tests.cs" company="NematMusaev">
 // Copyright (c) PlaceholderCompany. All rights reserved.
 // </copyright>
 using ParallelMultiplication;

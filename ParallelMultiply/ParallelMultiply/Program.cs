@@ -1,4 +1,6 @@
-﻿// See https://aka.ms/new-console-template for more information
+﻿// <copyright file="Program.cs" company="NematMusaev">
+// Copyright (c) PlaceholderCompany. All rights reserved.
+// </copyright>
 using System.Diagnostics;
 using ParallelMultiplication;
 
