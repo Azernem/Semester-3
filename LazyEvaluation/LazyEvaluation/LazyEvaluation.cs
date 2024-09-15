@@ -1,9 +1,9 @@
-// <copyright file="LazyEvulation.cs" company="NematMusaev">
+// <copyright file="LazyEvaluation.cs" company="NematMusaev">
 // Copyright (c) PlaceholderCompany. All rights reserved.
 // </copyright>
 using System.Threading;
 
-namespace LazyEvulation;
+namespace LazyEvaluation;
 
 /// <summary>
 /// Class of simple Lazy evulation.
