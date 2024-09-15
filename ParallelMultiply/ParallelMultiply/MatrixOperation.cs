@@ -1,4 +1,4 @@
-﻿// <copyright file="ParallelMultiply.cs" company="NematMusaev">
+﻿// <copyright file="MatrixOperation.cs" company="NematMusaev">
 // Copyright (c) PlaceholderCompany. All rights reserved.
 // </copyright>
 using System.Numerics;
