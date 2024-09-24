@@ -1,7 +1,10 @@
+// <copyright file="LazyEvaluation.Tests.cs" company="NematMusaev">
+// Copyright (c) PlaceholderCompany. All rights reserved.
+// </copyright>
 using System.Diagnostics;
-using LazyEvulation;
+using LazyEvaluation;
 
-namespace LazyEvulation.Tests;
+namespace LazyEvaluation.Tests;
 
 /// <summary>
 /// class of Lazy evulation tests.
@@ -9,7 +12,6 @@ namespace LazyEvulation.Tests;
 public class Tests
 {
     [Test]
-    
     public void MeasureTimeLazyEvilation()
     {
         var times = new double[2];
@@ -28,7 +30,6 @@ public class Tests
     }
 
     [Test]
-    
     public void CompareFunctionCalls()
     {
         var oneThreadOperation = new Lazy<double>(() => 2 * 5 / 2344443 * 45335);
@@ -38,7 +39,6 @@ public class Tests
     }
 
     [Test]
-
     public void TreadCompareFunctionCalls()
     {
         var threadLazyOperation = new ThreadLazy<double>(() => 2 * 5 / 2344443 * 45335);   
@@ -71,7 +71,6 @@ public class Tests
     }
 
     [Test]
-
     public void GetSameValues()
     {
         var value = 1;
@@ -86,7 +85,6 @@ public class Tests
     }
 
     [Test]
-
     public void ThreadGetSameValues()
     {
         var value = 1;

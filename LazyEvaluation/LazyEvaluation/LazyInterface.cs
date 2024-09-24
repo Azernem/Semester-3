@@ -1,4 +1,7 @@
-namespace LazyEvulation;
+// <copyright file="LazyInterface.cs" company="NematMusaev">
+// Copyright (c) PlaceholderCompany. All rights reserved.
+// </copyright>
+namespace LazyEvaluation;
 
 /// <summary>
 /// Interface of Lazy evulation classes.
