@@ -5,14 +5,16 @@ using System.Diagnostics;
 using ParallelMultiplication;
 
 var n = 100;
+var Sizes = new List<int>();
 var ParallelTime = new List<double>();
 var SequentallyTime = new List<double>();
 var stopwatch = new Stopwatch();
 
 for (var i = 20; i < 130; i += 10)
 {
+    Sizes.Add(i);
     var currentSize = i;
-    var SequentallyTimes = new double[n];
+    var sequentallyTimes = new double[n];
     var parallelTimes = new double[n];
     double seqStandartDaviation;
     double parallelStandartDaviation;
@@ -24,7 +26,7 @@ for (var i = 20; i < 130; i += 10)
         stopwatch.Start();
         matrixOperation.SequentiallyMultiply();
         stopwatch.Stop();
-        SequentallyTimes[j] = stopwatch.ElapsedMilliseconds;
+        sequentallyTimes[j] = stopwatch.ElapsedMilliseconds;
         stopwatch.Reset();
         stopwatch.Start();
         matrixOperation.ParallelMultiply();
@@ -33,7 +35,7 @@ for (var i = 20; i < 130; i += 10)
         stopwatch.Reset();
     }
 
-    var avarageValueSeq = SequentallyTimes.Sum() / n;
+    var avarageValueSeq = sequentallyTimes.Sum() / n;
     SequentallyTime.Add(avarageValueSeq);
     var avarageValueParallel = parallelTimes.Sum() / n;
     ParallelTime.Add(avarageValueParallel);
@@ -41,8 +43,8 @@ for (var i = 20; i < 130; i += 10)
 
     for (var k = 0; k < n; k++)
     {
-        sequentallyDaviations[k] = Math.Pow(SequentallyTimes[k] - avarageValueSeq, 2);
-        parallelDaviations[k] = Math.Pow(SequentallyTimes[k] - avarageValueSeq, 2);
+        sequentallyDaviations[k] = Math.Pow(sequentallyTimes[k] - avarageValueSeq, 2);
+        parallelDaviations[k] = Math.Pow(parallelTimes[k] - avarageValueSeq, 2);
     }
 
     seqStandartDaviation = sequentallyDaviations.Sum() / n;
