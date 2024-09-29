@@ -64,8 +64,8 @@ public class Tests
         string path1 = "../../../Size.txt";
         var fileMatrix = new FileMatrix(path1);
         fileMatrix.CreateMatrix();
-        Assert.That(fileMatrix.matrix.GetLongLength(0), Is.EqualTo(2));
-        Assert.That(fileMatrix.matrix.GetLongLength(1), Is.EqualTo(3));
+        Assert.That(fileMatrix.matrix.GetLength(0), Is.EqualTo(2));
+        Assert.That(fileMatrix.matrix.GetLength(1), Is.EqualTo(3));
     }
     
     /// <summary>
@@ -138,5 +138,23 @@ public class Tests
         fileResultmatrix.CreateMatrix();
         var resultmatrix = fileResultmatrix.matrix;
         Assert.That(resultmatrix, Is.EqualTo(checkMatrix));
+    }
+
+    /// <summary>
+    /// Gets same responces at different methodes of multiplication.
+    /// </summary>
+    [Test]
+    public void GetSameResponces()
+    {
+        string path1 = "../../../matrix1.txt";
+        string path2 = "../../../matrix2.txt";
+        var filematrix1 = new FileMatrix(path1);
+        var filematrix2 = new FileMatrix(path2);
+        filematrix1.CreateMatrix();
+        filematrix2.CreateMatrix();
+        var matrix1 = filematrix1.matrix;
+        var matrix2 = filematrix2.matrix;
+        var matrixOperation = new MatrixOperation(matrix1, matrix2);
+        Assert.That(matrixOperation.ParallelMultiply(), Is.EqualTo(matrixOperation.SequentiallyMultiply()));
     }
 }
