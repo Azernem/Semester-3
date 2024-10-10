@@ -18,7 +18,7 @@
   </ItemGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\ParallelMultiply\ParallelMultiply.csproj" />
+    <ProjectReference Include="..\MyThreadPool\MyThreadPool.csproj" />
   </ItemGroup>
 
 </Project>
