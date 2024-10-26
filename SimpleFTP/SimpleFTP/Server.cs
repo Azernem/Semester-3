@@ -11,6 +11,7 @@ using System.Dynamic;
 /// </summary>
 public class Server
 {
+    public string answer;
     private int port;
     private IPAddress ipaddress;
     public Server(IPAddress ipaddress, int port)
@@ -32,6 +33,7 @@ public class Server
                 using var stream = new NetworkStream(socket);
                 using var reader = new StreamReader(stream);
                 string stringcommande = await reader.ReadLineAsync();
+                this.answer = stringcommande;
                 var commande = stringcommande.Split(' ');
 
                 try
@@ -86,7 +88,7 @@ public class Server
 
             var directory = new DirectoryInfo(path);
             var files = Directory.GetFileSystemEntries(path);
-            var builder = new StringBuilder($"{files.Length}");
+            var builder = new StringBuilder($"{files.Length} ");
 
             foreach (var file in files)
             {

@@ -8,7 +8,7 @@ using System.Text;
 public class Tests
 {
     [Test]
-    public async Task GetResponseForClient1()
+    public async Task GetResponseForClient()
     {
     const string checker = "1 ./Fileshhh";
     const int port = 8896;
@@ -34,6 +34,18 @@ public class Tests
     {
         string commande = $"1 yyy\n";
         var checker = "-1";
+        const int port = 8897;
+        var server = new Server(IPAddress.Any, port);
+        var client = new Client("localhost", port);
+        var result = await client.SendAndAcceptMessage(commande);
+        Assert.That(result, Is.EqualTo(checker));
+    }
+
+    [Test]
+    public async Task ListDirectory()
+    {
+        string commande = $"1 ../../../Files";
+        var checker = "3 1t.txt false dir true 2t.txt false";
         const int port = 8897;
         var server = new Server(IPAddress.Any, port);
         var client = new Client("localhost", port);
