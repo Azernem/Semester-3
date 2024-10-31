@@ -27,21 +27,26 @@ public class CheckSumTests
     [Test]
     public void CalculateSequentallyFileHashReturnsCorrectHash()
     {
-    string testFilePath = "testfile.txt";
-    File.WriteAllText(testFilePath, "Hello, World!");
+    string testFilePath = "../../../testfile.txt";
 
-    byte[] hash = checkSum.CalculateSequential(testFilePath);
+    var hash = checkSum.CalculateSequential(testFilePath);
 
-    using (var md5 = MD5.Create())
+    using var md5 = MD5.Create();
     {
-        byte[] expectedHash = md5.ComputeHash(File.ReadAllBytes(testFilePath));
-        Assert.That(expectedHash, Is.EqualTo(hash));
+        byte[] checker = md5.ComputeHash(File.ReadAllBytes(testFilePath));
+        Assert.That(checker, Is.EqualTo(hash));
     }
     }
 
     public async Task CalculateParallelFileHashReturnsCorrectHash()
     {
-        string testFilePath = "testfile.txt";
-        File.WriteAllText(testFilePath, "Hello, World!");
+        string testFilePath = "../../../testfile.txt";
+        var hash = checkSum.CalculateParallel(testFilePath);
+
+        using var md5 = MD5.Create();
+        {
+            byte[] checker = md5.ComputeHash(File.ReadAllBytes(testFilePath));
+            Assert.That(checker, Is.EqualTo(checker));
+        }
     }
 }

@@ -6,6 +6,7 @@ namespace MD5;
 using System.Security.Cryptography;
 using System.Runtime.CompilerServices;
 using System.Text;
+
 /// <summary>
 /// class with checksum.
 /// </summary>
@@ -17,7 +18,7 @@ public class CheckSum
 /// Sequentally Calculate.
 /// </summary>
 /// <param name="path"></param>
-/// <returns></returns>
+/// <returns>hash. </returns>
     public byte[] CalculateSequential(string path)
     {
         if (File.Exists(path))
@@ -29,7 +30,12 @@ public class CheckSum
             return CalculateDirectoryHash(path);
         }
     }
-
+    
+    /// <summary>
+    /// Parallel Calculate.
+    /// </summary>
+    /// <param name="path"></param>
+    /// <returns>hash by multiplication. </returns>
     public async Task<byte[]> CalculateParallel(string path)
     {
         if (File.Exists(path))
@@ -41,7 +47,12 @@ public class CheckSum
             return await CalculateDirectoryHashAsync(path);
         }
     }
-
+    
+    /// <summary>
+    /// Calculate Sequentally hash of files. 
+    /// </summary>
+    /// <param name="path"></param>
+    /// <returns></returns>
     private byte[] CalculateFileHash(string path)
     {
         var bytes = File.ReadAllBytes(path);
