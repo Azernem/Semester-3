@@ -18,7 +18,7 @@
   </ItemGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\MyThreadPool\MyThreadPool.csproj" />
+    <ProjectReference Include="..\Task1\Task1.csproj" />
   </ItemGroup>
 
 </Project>
