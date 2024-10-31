@@ -41,12 +41,12 @@ public class CheckSumTests
     public async Task CalculateParallelFileHashReturnsCorrectHash()
     {
         string testFilePath = "../../../testfile.txt";
-        var hash = checkSum.CalculateParallel(testFilePath);
+        var hash = await checkSum.CalculateParallel(testFilePath);
 
         using var md5 = MD5.Create();
         {
             byte[] checker = md5.ComputeHash(File.ReadAllBytes(testFilePath));
-            Assert.That(checker, Is.EqualTo(checker));
+            Assert.That(checker, Is.EqualTo(hash));
         }
     }
 }

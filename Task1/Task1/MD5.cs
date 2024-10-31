@@ -1,4 +1,4 @@
-// <copyright file="LazyEvaluation.cs" company="NematMusaev">
+// <copyright file="MD5.cs" company="NematMusaev">
 // Copyright (c) PlaceholderCompany. All rights reserved.
 // </copyright>
 namespace MD5;
@@ -17,73 +17,71 @@ public class CheckSum
 /// <summary>
 /// Sequentally Calculate.
 /// </summary>
-/// <param name="path"></param>
+/// <param name="path">path.</param>
 /// <returns>hash. </returns>
     public byte[] CalculateSequential(string path)
     {
         if (File.Exists(path))
         {
-            return CalculateFileHash(path);
+            return this.CalculateFileHash(path);
         }
         else
         {
-            return CalculateDirectoryHash(path);
+            return this.CalculateDirectoryHash(path);
         }
     }
-    
+
     /// <summary>
     /// Parallel Calculate.
     /// </summary>
-    /// <param name="path"></param>
+    /// <param name="path">path.</param>
     /// <returns>hash by multiplication. </returns>
     public async Task<byte[]> CalculateParallel(string path)
     {
         if (File.Exists(path))
         {
-            return await CalculateFileHashAsync(path);
+            return await this.CalculateFileHashAsync(path);
         }
         else
         {
-            return await CalculateDirectoryHashAsync(path);
+            return await this.CalculateDirectoryHashAsync(path);
         }
     }
-    
+
     /// <summary>
-    /// Calculate Sequentally hash of files. 
+    /// Calculate Sequentally hash of files.
     /// </summary>
-    /// <param name="path"></param>
-    /// <returns></returns>
+    /// <param name="path">path. </param>
+    /// <returns>hash of. </returns>
     private byte[] CalculateFileHash(string path)
     {
         var bytes = File.ReadAllBytes(path);
-        return checkSum.ComputeHash(bytes);
+        return this.checkSum.ComputeHash(bytes);
     }
 
+    /// <summary>
+    /// Calculate Sequentally hash of directory.
+    /// </summary>
+    /// <param name="path">path. </param>
+    /// <returns>hash of directory. </returns>
     private byte[] CalculateDirectoryHash(string path)
     {
-        long result = 0;
+        long result = Path.GetDirectoryName(path).Length;
         var files = Directory.GetFiles(path);
         var directories = Directory.GetDirectories(path);
-        
+
         Array.Sort(directories);
-        
+
         for (int i = 0; i < directories.Length; i++)
         {
-            result += BitConverter.ToInt64(CalculateDirectoryHash(directories[i]));
-        }
-        /*foreach (var file in Directory.GetFiles(path))
-        {
-            var fileHash = CalculateFileHash(file);
-            result = CombineHashes(checkSum, result, fileHash);
+            result += BitConverter.ToInt64(this.CalculateDirectoryHash(directories[i]));
         }
 
-        Array.Sort(directories);*/
+        Array.Sort(files);
         for (int i = 0; i < files.Length; i++)
         {
-            result += BitConverter.ToInt64(CalculateFileHash(files[i]));
+            result += BitConverter.ToInt64(this.CalculateFileHash(files[i]));
         }
-        
-        result += Path.GetDirectoryName(path).Length;
 
         return BitConverter.GetBytes(result);
     }
@@ -91,42 +89,34 @@ public class CheckSum
     private async Task<byte[]> CalculateFileHashAsync(string path)
     {
         using var stream = new FileStream(path, FileMode.Open);
-        return await checkSum.ComputeHashAsync(stream);
+        return await this.checkSum.ComputeHashAsync(stream);
     }
 
     private async Task<byte[]> CalculateDirectoryHashAsync(string path)
     {
-        long result = 0;
+        long result = Path.GetDirectoryName(path).Length;
         var files = Directory.GetFiles(path);
         var directories = Directory.GetDirectories(path);
         var tasks = new Task<byte[]>[directories.Length + files.Length];
-        
+
         Array.Sort(directories);
-        
+
         for (int i = 0; i < directories.Length; i++)
         {
-            var index = i;
-            tasks[i] = Task.Run(async () => await CalculateDirectoryHashAsync(directories[index]));
-        }
-        /*foreach (var file in Directory.GetFiles(path))
-        {
-            var fileHash = CalculateFileHash(file);
-            result = CombineHashes(checkSum, result, fileHash);
+            var locall = i;
+            tasks[i] = Task.Run(async () => await this.CalculateDirectoryHashAsync(directories[locall]));
         }
 
-        Array.Sort(directories);*/
         for (int i = 0; i < files.Length; i++)
         {
-            var index = i;
-            tasks[directories.Length + index] = Task.Run(async () => await CalculateFileHashAsync(files[index]));
+            var locall = i;
+            tasks[directories.Length + locall] = Task.Run(async () => await this.CalculateFileHashAsync(files[locall]));
         }
 
         for (int i = 0; i < tasks.Length; i++)
         {
             result += BitConverter.ToInt64(tasks[i].Result);
         }
-        
-        result += Path.GetDirectoryName(path).Length;
 
         return BitConverter.GetBytes(result);
     }
