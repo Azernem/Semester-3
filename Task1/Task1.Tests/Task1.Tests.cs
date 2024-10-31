@@ -20,10 +20,16 @@ public class Tests
     }
 }
 
+/// <summary>
+/// class of tests about MD5.
+/// </summary>
 public class CheckSumTests
 {
     private readonly CheckSum checkSum = new CheckSum();
 
+    /// <summary>
+    /// returns correct hash throught sequentail calculate.
+    /// </summary>
     [Test]
     public void CalculateSequentallyFileHashReturnsCorrectHash()
     {
@@ -37,7 +43,11 @@ public class CheckSumTests
         Assert.That(checker, Is.EqualTo(hash));
     }
     }
-
+    
+    /// <summary>
+    /// returns correct hash throught sequentail calculate.
+    /// </summary>
+    /// <returns></returns>
     public async Task CalculateParallelFileHashReturnsCorrectHash()
     {
         string testFilePath = "../../../testfile.txt";
