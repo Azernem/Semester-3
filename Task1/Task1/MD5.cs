@@ -6,8 +6,6 @@ namespace MD5;
 using System.Security.Cryptography;
 using System.Runtime.CompilerServices;
 using System.Text;
-
-
 /// <summary>
 /// class with checksum.
 /// </summary>
