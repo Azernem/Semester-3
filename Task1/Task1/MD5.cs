@@ -48,22 +48,12 @@ public class CheckSum
         }
     }
 
-    /// <summary>
-    /// Calculate Sequentally hash of files.
-    /// </summary>
-    /// <param name="path">path. </param>
-    /// <returns>hash of. </returns>
     private byte[] CalculateFileHash(string path)
     {
         var bytes = File.ReadAllBytes(path);
         return this.checkSum.ComputeHash(bytes);
     }
 
-    /// <summary>
-    /// Calculate Sequentally hash of directory.
-    /// </summary>
-    /// <param name="path">path. </param>
-    /// <returns>hash of directory. </returns>
     private byte[] CalculateDirectoryHash(string path)
     {
         long result = Path.GetDirectoryName(path).Length;
@@ -107,6 +97,7 @@ public class CheckSum
             tasks[i] = Task.Run(async () => await this.CalculateDirectoryHashAsync(directories[locall]));
         }
 
+        Array.Sort(files);
         for (int i = 0; i < files.Length; i++)
         {
             var locall = i;
