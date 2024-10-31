@@ -4,6 +4,7 @@
 namespace Task1.Tests;
 using MD5;
 using System.Security.Cryptography;
+using System.Security.Cryptography.X509Certificates;
 
 public class Tests
 {
@@ -21,28 +22,26 @@ public class Tests
 
 public class CheckSumTests
 {
-    private readonly CheckSum checkSum;
-
-    public CheckSumTests()
-    {
-    checkSum = new CheckSum();
-    }
+    private readonly CheckSum checkSum = new CheckSum();
 
     [Test]
-    public void CalculateFileHash_ReturnsCorrectHash()
+    public void CalculateSequentallyFileHashReturnsCorrectHash()
     {
-    // Arrange
     string testFilePath = "testfile.txt";
     File.WriteAllText(testFilePath, "Hello, World!");
 
-    // Act
     byte[] hash = checkSum.CalculateSequential(testFilePath);
 
-    // Assert
     using (var md5 = MD5.Create())
     {
         byte[] expectedHash = md5.ComputeHash(File.ReadAllBytes(testFilePath));
         Assert.That(expectedHash, Is.EqualTo(hash));
     }
+    }
+
+    public async Task CalculateParallelFileHashReturnsCorrectHash()
+    {
+        string testFilePath = "testfile.txt";
+        File.WriteAllText(testFilePath, "Hello, World!");
     }
 }
