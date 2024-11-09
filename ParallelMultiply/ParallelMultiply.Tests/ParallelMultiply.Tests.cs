@@ -1,9 +1,10 @@
 // <copyright file="ParallelMultiply.Tests.cs" company="NematMusaev">
 // Copyright (c) PlaceholderCompany. All rights reserved.
 // </copyright>
-using ParallelMultiplication;
 
 namespace ParallelMultiply.Tests;
+
+using ParallelMultiplication;
 
 /// <summary>
 /// tests matrixes and operation of matrixes.
@@ -26,14 +27,14 @@ public class Tests
         var matrixOperation = new MatrixOperation(fileMatrix1.matrix, fileMatrix2.matrix);
         Assert.That(matrixOperation.ParallelMultiply(), Is.EqualTo(checkMatrix));
     }
-    
+
     /// <summary>
     /// Test about parallel multiplication.
     /// </summary>
     [Test]
     public void SequentallyMultiplyTest()
     {
-        var checkMatrix = new int[,] {{5, 12}, {1, 8}};
+        var checkMatrix = new int[,] { { 5, 12 }, { 1, 8 } };
         string path1 = "../../../matrix1.txt";
         string path2 = "../../../matrix2.txt";
         var fileMatrix1 = new FileMatrix(path1);

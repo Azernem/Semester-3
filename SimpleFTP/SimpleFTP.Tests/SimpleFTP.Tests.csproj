@@ -22,7 +22,7 @@
   </ItemGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\ParallelMultiply\ParallelMultiply.csproj" />
+    <ProjectReference Include="..\SimpleFTP\SimpleFTP.csproj" />
   </ItemGroup>
 
 </Project>

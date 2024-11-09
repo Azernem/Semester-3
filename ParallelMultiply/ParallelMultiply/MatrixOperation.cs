@@ -1,9 +1,10 @@
 ﻿// <copyright file="MatrixOperation.cs" company="NematMusaev">
 // Copyright (c) PlaceholderCompany. All rights reserved.
 // </copyright>
+namespace ParallelMultiplication;
+
 using System.Numerics;
 using System;
-namespace ParallelMultiplication;
 
 /// <summary>
 /// Class about multiplication of two matrixes.
@@ -30,34 +31,34 @@ public class MatrixOperation
     /// <exception cref="СompatibilityException">Сompatibility matrix exceptio</exception>
     public void Combine()
     {
-        if (! (matrix1.GetLength(1) == matrix2.GetLength(0)))
+        if (!(this.matrix1.GetLength(1) == this.matrix2.GetLength(0)))
         {
             throw new СompatibilityException("matrixes arent equal");
         }
     }
-    
+
     /// <summary>
     /// Sequentally multiply matrixes.
     /// </summary>
-    /// <returns>Result matrix</returns>
+    /// <returns>Result matrix. </returns>
     public int[,] SequentiallyMultiply()
-        {
-            Combine();
-            var result = new int[matrix1.GetLength(0), matrix2.GetLength(1)];
+    {
+        this.Combine();
+        var result = new int[this.matrix1.GetLength(0), this.matrix2.GetLength(1)];
 
-            for (var i = 0; i < matrix1.GetLength(0); ++i)
+        for (var i = 0; i < this.matrix1.GetLength(0); ++i)
+        {
+            for (var j = 0; j < this.matrix2.GetLength(1); ++j)
             {
-                for (var j = 0; j < matrix2.GetLength(1); ++j)
+                for (var k = 0; k < this.matrix1.GetLength(1); ++k)
                 {
-                    for (var k = 0; k < matrix1.GetLength(1); ++k)
-                    {
-                        result[i, j] += matrix1[i, k] * matrix2[k, j];
-                    }
+                    result[i, j] += this.matrix1[i, k] * this.matrix2[k, j];
                 }
             }
-
-            return result;
         }
+
+        return result;
+    }
     
     /// <summary>
     /// Parallel multiply matrixes.

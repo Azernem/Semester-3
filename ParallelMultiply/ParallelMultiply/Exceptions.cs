@@ -3,42 +3,52 @@
 // </copyright>
 namespace ParallelMultiplication;
 
-public class IncorrrectSizeException: Exception
+/// <summary>
+/// Incorrrect Size Exception.
+/// </summary>
+public class IncorrrectSizeException : Exception
 {
     public IncorrrectSizeException(string message): base(message)
     {
-
     }
 }
 
-public class AnotherTypeException: Exception
+/// <summary>
+/// Another Type Exception.
+/// </summary>
+public class AnotherTypeException : Exception
 {
     public AnotherTypeException(string message): base(message)
     {
-
     }
 }
 
+/// <summary>
+/// Сompatibility Exception.
+/// </summary>
 public class СompatibilityException: Exception
 {
     public СompatibilityException(string message): base(message)
     {
-
     }
 }
 
-public class ExistenceFileLoadException: Exception
+/// <summary>
+/// Existence File Load Exception.
+/// </summary>
+public class ExistenceFileLoadException : Exception
 {
     public ExistenceFileLoadException(string message): base(message)
     {
-
     }
 }
 
-public class EmptyFileException: Exception
+/// <summary>
+/// Empty File Exception.
+/// </summary>
+public class EmptyFileException : Exception
 {
     public EmptyFileException(string message): base(message)
     {
-
     }
 }
