@@ -11,7 +11,7 @@ namespace MyThreadPool;
 /// <typeparam name="Tres">Result of task. </typeparam>
 public interface IMyTask<Tres>
 {
-    public bool IsCompleted {get; set; }
+    public bool IsCompleted {get; set;}
 
     public Tres? Result {get; }
 

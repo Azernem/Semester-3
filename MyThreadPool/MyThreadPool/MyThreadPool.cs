@@ -14,9 +14,9 @@ public class MyThreadPool<Tres>
 {
     private Thread[] pool;
 
-    private CancellationTokenSource cancellationToken = new CancellationTokenSource();
+    private CancellationTokenSource cancellationToken = new();
 
-    public Queue<Func<Tres>> queue = new Queue<Func<Tres>>();
+    public Queue<Func<Tres>> queue = new();
 
     public MyThreadPool(int value)
     {
@@ -31,25 +31,21 @@ public class MyThreadPool<Tres>
         {
             thread.Start();
         }
-        
-        foreach (var thread in pool)
-        {
-            thread.Join();
-        }
     }
 
     private void GetTask()
     {
         while(! cancellationToken.IsCancellationRequested)
         {
-            lock(queue);
-
-            while (queue.Count == 0)
+            lock(queue)
             {
-                Monitor.Wait(queue);
-            }
+                while (queue.Count == 0)
+                {
+                    Monitor.Wait(queue);
+                }
 
-            queue.Dequeue()();
+                queue.Dequeue()();
+            }
         }
 
         if (cancellationToken.IsCancellationRequested)
@@ -66,14 +62,17 @@ public class MyThreadPool<Tres>
 
     public MyTask<Tres> Submit(Func<Tres> func)
     {
-        if (! cancellationToken.IsCancellationRequested)
+        if (cancellationToken.IsCancellationRequested)
         {
             throw new Exception("pool are shut dawn");
         }   
 
         var myTask = new MyTask<Tres>(func);
         lock(queue)
-        queue.Enqueue(myTask.function);
+        {
+            queue.Enqueue(myTask.function);
+            Monitor.Pulse(queue);
+        }
 
         return myTask;
     }
@@ -81,63 +80,14 @@ public class MyThreadPool<Tres>
     public void Shutdawn()
     {
         cancellationToken.Cancel();
-        Monitor.PulseAll(queue);
+        lock(queue)
+        {
+            Monitor.PulseAll(queue);
+        }
 
         foreach(var thread in pool)
         {
             thread.Join();
         }
-    }
-}
-
-/// <summary>
-/// 
-/// </summary>
-/// <typeparam name="Tres">return type of task. </typeparam>
-public class MyTask<Tres>: IMyTask<Tres>
-{
-    public bool IsCompleted {get; set; }
-
-    public Func<Tres> function;
-
-    public Exception? exception;
-
-    public Tres? Result => GetResult();
-
-    public MyTask(Func<Tres> func)
-    {
-        IsCompleted = false;
-        this.function = func;
-    }
-    
-    private Tres? GetResult()
-    {
-        Tres? result = default;
-
-        try
-        {
-            result = function();
-        }
-
-        catch(Exception ex)
-        {
-            exception = ex;
-        }
-
-        if (! (exception is null))
-        {
-            IsCompleted = true;
-            return result;
-        }
-
-        else
-        {
-            throw new AggregateException(exception);
-        }
-    }
-
-    public IMyTask<TNewRes> ContinueWith<TNewRes>(Func<Tres, TNewRes> func)
-    {
-        return new MyTask<TNewRes>(() => func(this.Result));    
     }
 }
