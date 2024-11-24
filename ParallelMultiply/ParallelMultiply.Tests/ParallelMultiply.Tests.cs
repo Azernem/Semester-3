@@ -12,39 +12,20 @@ using ParallelMultiplication;
 public class Tests
 {
     /// <summary>
-    /// test about parallel multiplication.
+    /// test about parallel and sequentally multiplication.
     /// </summary>
     [Test]
-    public void ParallelMultiplyTest()
-    {
-        var checkMatrix = new int[,] {{5, 12}, {1, 8}};
-        string path1 = "../../../matrix1.txt";
-        string path2 = "../../../matrix2.txt";
-        var fileMatrix1 = new FileMatrix(path1);
-        fileMatrix1.CreateMatrix();
-        var fileMatrix2 = new FileMatrix(path2);
-        fileMatrix2.CreateMatrix();
-        var matrixOperation = new MatrixOperation(fileMatrix1.matrix, fileMatrix2.matrix);
-        Assert.That(matrixOperation.ParallelMultiply(), Is.EqualTo(checkMatrix));
-    }
-
-    /// <summary>
-    /// Test about parallel multiplication.
-    /// </summary>
-    [Test]
-    public void SequentallyMultiplyTest()
+    public void ParallelAndSequentallyMultiplyTest()
     {
         var checkMatrix = new int[,] { { 5, 12 }, { 1, 8 } };
         string path1 = "../../../matrix1.txt";
         string path2 = "../../../matrix2.txt";
         var fileMatrix1 = new FileMatrix(path1);
-        fileMatrix1.CreateMatrix();
         var fileMatrix2 = new FileMatrix(path2);
-        fileMatrix2.CreateMatrix();
-        var matrixOperation = new MatrixOperation(fileMatrix1.matrix, fileMatrix2.matrix);
-        Assert.That(matrixOperation.SequentiallyMultiply(), Is.EqualTo(checkMatrix));
+        Assert.That(MatrixOperation.ParallelMultiply(fileMatrix1.matrix, fileMatrix2.matrix), Is.EqualTo(checkMatrix));
+        Assert.That(MatrixOperation.SequentiallyMultiply(fileMatrix1.matrix, fileMatrix2.matrix), Is.EqualTo(checkMatrix));
     }
-    
+
     /// <summary>
     /// Test about correct size matrix.
     /// </summary>
@@ -52,10 +33,9 @@ public class Tests
     public void IncorrectSizeMatrixTest()
     {
         string path1 = "../../../IncorrectSize.txt";
-        var fileMatrix1 = new FileMatrix(path1);
-        Assert.Throws<IncorrrectSizeException>(() => fileMatrix1.CreateMatrix());
+        Assert.Throws<IncorrrectSizeException>(() => new FileMatrix(path1));
     }
-    
+
     /// <summary>
     /// Test about right size matrix.
     /// </summary>
@@ -64,11 +44,10 @@ public class Tests
     {
         string path1 = "../../../Size.txt";
         var fileMatrix = new FileMatrix(path1);
-        fileMatrix.CreateMatrix();
         Assert.That(fileMatrix.matrix.GetLength(0), Is.EqualTo(2));
         Assert.That(fileMatrix.matrix.GetLength(1), Is.EqualTo(3));
     }
-    
+
     /// <summary>
     /// Test about relevant element type of matrix.
     /// </summary>
@@ -76,10 +55,9 @@ public class Tests
     public void CheckMatrixTypeTest()
     {
         string path1 = "../../../CheckMatrixType.txt";
-        var fileMatrix = new FileMatrix(path1);
-        Assert.Throws<AnotherTypeException>(() => fileMatrix.CreateMatrix());
+        Assert.Throws<AnotherTypeException>(() => new FileMatrix(path1));
     }
-    
+
     /// <summary>
     /// Test about compatibility of two matrixes.
     /// </summary>
@@ -89,13 +67,10 @@ public class Tests
         string path1 = "../../../matrix1.txt";
         string path2 = "../../../Size.txt";
         var fileMatrix1 = new FileMatrix(path1);
-        fileMatrix1.CreateMatrix();
         var fileMatrix2 = new FileMatrix(path2);
-        fileMatrix2.CreateMatrix();
-        var matrixOperation = new MatrixOperation(fileMatrix1.matrix, fileMatrix2.matrix);
-        Assert.Throws<СompatibilityException>(() => matrixOperation.ParallelMultiply());
+        Assert.Throws<СompatibilityException>(() => MatrixOperation.ParallelMultiply(fileMatrix1.matrix, fileMatrix2.matrix));
     }
-    
+
     /// <summary>
     /// Test wich generates matrix.
     /// </summary>
@@ -106,39 +81,34 @@ public class Tests
         var matrix = FileMatrix.GenerateMatrix(sizeRows, sizeColumns);
         Assert.That(matrix.GetLength(0), Is.EqualTo(sizeRows));
     }
-    
+
     /// <summary>
     /// Checkes compatibility of matrixes.
     /// </summary>
     [Test]
     public void EqualsTest()
     {
-        var matrix1 = new int[,] {{1, 2 , 3}, {3, 3, 3}};
-        var matrix2 = new int[,] {{1, 2}, {3, 3}};
-        var matrixOperation = new MatrixOperation(matrix1, matrix2);
-        Assert.Throws<СompatibilityException>(() => matrixOperation.Combine());
+        var matrix1 = new int[,] { { 1, 2, 3 }, { 3, 3, 3 } };
+        var matrix2 = new int[,] { { 1, 2 }, { 3, 3 } };
+        Assert.Throws<СompatibilityException>(() => MatrixOperation.Compare(matrix1, matrix2));
     }
-    
+
     /// <summary>
     /// Gets file with particular matrix.
     /// </summary>
     [Test]
     public void GetFileWithResult()
     {
-        var resultPath = "../../../resultmatrix.txt"; 
-        var checkMatrix = new int[,] {{5, 12}, {1, 8}};
+        var resultPath = "../../../resultmatrix.txt";
+        var checkMatrix = new int[,] { { 5, 12 }, { 1, 8 } };
         string path1 = "../../../matrix1.txt";
         string path2 = "../../../matrix2.txt";
         var fileMatrix1 = new FileMatrix(path1);
-        fileMatrix1.CreateMatrix();
         var fileMatrix2 = new FileMatrix(path2);
-        fileMatrix2.CreateMatrix();
-        var matrixOperation = new MatrixOperation(fileMatrix1.matrix, fileMatrix2.matrix);
-        FileMatrix.WriteToFile(matrixOperation.ParallelMultiply(), resultPath);
-        var fileResultmatrix = new FileMatrix(resultPath);
-        fileResultmatrix.CreateMatrix();
-        var resultmatrix = fileResultmatrix.matrix;
-        Assert.That(resultmatrix, Is.EqualTo(checkMatrix));
+        FileMatrix.WriteToFile(MatrixOperation.ParallelMultiply(fileMatrix1.matrix, fileMatrix2.matrix), resultPath);
+        var fileResultMatrix = new FileMatrix(resultPath);
+        var resultMatrix = fileResultMatrix.matrix;
+        Assert.That(resultMatrix, Is.EqualTo(checkMatrix));
     }
 
     /// <summary>
@@ -149,13 +119,10 @@ public class Tests
     {
         string path1 = "../../../matrix1.txt";
         string path2 = "../../../matrix2.txt";
-        var filematrix1 = new FileMatrix(path1);
-        var filematrix2 = new FileMatrix(path2);
-        filematrix1.CreateMatrix();
-        filematrix2.CreateMatrix();
-        var matrix1 = filematrix1.matrix;
-        var matrix2 = filematrix2.matrix;
-        var matrixOperation = new MatrixOperation(matrix1, matrix2);
-        Assert.That(matrixOperation.ParallelMultiply(), Is.EqualTo(matrixOperation.SequentiallyMultiply()));
+        var fileMatrix1 = new FileMatrix(path1);
+        var fileMatrix2 = new FileMatrix(path2);
+        var matrix1 = fileMatrix1.matrix;
+        var matrix2 = fileMatrix2.matrix;
+        Assert.That(MatrixOperation.ParallelMultiply(matrix1, matrix2), Is.EqualTo(MatrixOperation.SequentiallyMultiply(matrix1, matrix2)));
     }
 }
