@@ -1,16 +1,20 @@
 // <copyright file="LazyEvaluation.Tests.cs" company="NematMusaev">
 // Copyright (c) PlaceholderCompany. All rights reserved.
 // </copyright>
-using System.Diagnostics;
-using LazyEvaluation;
 
 namespace LazyEvaluation.Tests;
+
+using System.Diagnostics;
+using LazyEvaluation;
 
 /// <summary>
 /// class of Lazy evulation tests.
 /// </summary>
 public class Tests
 {
+    /// <summary>
+    /// measure time of lazy evaluation.
+    /// </summary>
     [Test]
     public void MeasureTimeLazyEvilation()
     {
@@ -29,47 +33,9 @@ public class Tests
         Assert.That(times[1] == times[0]);
     }
 
-    [Test]
-    public void CompareFunctionCalls()
-    {
-        var oneThreadOperation = new Lazy<double>(() => 2 * 5 / 2344443 * 45335);
-        Assert.That(oneThreadOperation.flag, Is.EqualTo(false));
-        oneThreadOperation.Get();
-        Assert.That(oneThreadOperation.flag, Is.EqualTo(true));
-    }
-
-    [Test]
-    public void TreadCompareFunctionCalls()
-    {
-        var threadLazyOperation = new ThreadLazy<double>(() => 2 * 5 / 2344443 * 45335);   
-        Assert.That(threadLazyOperation.flag, Is.EqualTo(false));
-        var threads = new Thread[2];
-        var results = new bool[2];
-        threadLazyOperation.Get();
-        
-        for (var i = 0; i < threads.Length; i++)
-        {
-            var locall = i;
-            threads[i] = new Thread(() => {
-                results[locall] = threadLazyOperation.flag; 
-                threadLazyOperation.Get();
-            });
-        }
-        
-        foreach (var thread in threads)
-        {
-            thread.Start();
-        }
-
-        foreach (var thread in threads)
-        {
-            thread.Join();
-        }
-
-        Assert.That(results.Count(j => j == false) == 0);
-
-    }
-
+    /// <summary>
+    /// same working of threads without parallel.
+    /// </summary>
     [Test]
     public void GetSameValues()
     {
@@ -84,6 +50,9 @@ public class Tests
         Assert.That(lazyOperation.Get(), Is.EqualTo(2));
     }
 
+    /// <summary>
+    /// same working of threads with parallel.
+    /// </summary>
     [Test]
     public void ThreadGetSameValues()
     {

@@ -1,19 +1,20 @@
 // <copyright file="LazyEvaluation.cs" company="NematMusaev">
 // Copyright (c) PlaceholderCompany. All rights reserved.
 // </copyright>
-using System.Threading;
 
 namespace LazyEvaluation;
+
+using System.Threading;
 
 /// <summary>
 /// Class of simple Lazy evulation.
 /// </summary>
-/// <typeparam name="T">general type</typeparam>
-public class Lazy<T>: ILazy<T>
+/// <typeparam name="T">general type.</typeparam>
+public class Lazy<T> : ILazy<T>
 {
-    private T value;
-    public bool flag;
-    private Func<T> supplier;
+    private T? value;
+    private volatile bool isCalculated;
+    private Func<T>? supplier;
 
     /// <summary>
     /// Constructer.
@@ -22,8 +23,8 @@ public class Lazy<T>: ILazy<T>
     /// <exception cref="NullException">Null exception.</exception>
     public Lazy(Func<T> supplier)
     {
-        this.flag = false;
-        this.supplier = supplier ?? throw new NullException("its null element");
+        this.isCalculated = false;
+        this.supplier = supplier ?? throw new ArgumentNullException("its null element");
     }
 
     /// <summary>
@@ -32,56 +33,13 @@ public class Lazy<T>: ILazy<T>
     /// <returns>General type/</returns>
     public T Get()
     {
-        if (! flag)
+        if (!this.isCalculated)
         {
-            value = supplier();
-            flag = true;
+            this.value = supplier();
+            this.isCalculated = true;
+            this.supplier = null;
         }
 
-        return value;
-    }
-}
-
-/// <summary>
-/// Class of thread Lazy evulation.
-/// </summary>
-/// <typeparam name="T">General type.</typeparam>
-public class ThreadLazy<T>: ILazy<T>
-{
-    private T value;
-    public bool flag;
-    private object data;
-    private Func<T> supplier;
-
-    /// <summary>
-    /// Constructer.
-    /// </summary>
-    /// <param name="supplier">Function wich returns tupe T</param>
-    /// <exception cref="NullException">Null exception.</exception>
-    public ThreadLazy(Func<T> supplier)
-    {
-        this.flag = false;
-        this.supplier = supplier ?? throw new NullException("its null element");
-        this.data = new object();
-    }
-    
-    /// <summary>
-    /// Method wich gets value.
-    /// </summary>
-    /// <returns>General tupe T.</returns>
-    public T Get()
-    {
-        if (! flag)
-        {
-            lock (data)
-
-            if (! flag)
-            {
-                flag = true;
-                value = supplier();
-            }
-        }
-
-        return value;
+        return this.value;
     }
 }
