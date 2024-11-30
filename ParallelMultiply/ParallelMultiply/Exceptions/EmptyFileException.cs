@@ -12,7 +12,7 @@ public class EmptyFileException : Exception
     /// <summary>
     /// Constructer.
     /// </summary>
-    /// <param name="message">message.</param>
+    /// <param name="message">message exception.</param>
     public EmptyFileException()
     {
     }

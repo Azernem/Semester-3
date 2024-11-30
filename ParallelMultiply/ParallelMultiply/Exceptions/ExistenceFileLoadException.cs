@@ -12,8 +12,10 @@ public class ExistenceFileLoadException : Exception
     /// <summary>
     /// constructer.
     /// </summary>
-    /// <param name="message">message.</param>
-    public ExistenceFileLoadException(string message): base(message)
+    /// <param name="message">mesage exception. </param>
+    /// <param name="message">message exception.</param>
+    public ExistenceFileLoadException(string message)
+    : base(message)
     {
     }
 }

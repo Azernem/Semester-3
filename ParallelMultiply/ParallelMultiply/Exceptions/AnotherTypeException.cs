@@ -5,15 +5,16 @@
 namespace ParallelMultiplication;
 
 /// <summary>
-/// Another Type Exception.
+/// Another Type Exception. invalid integer exception.
 /// </summary>
 public class AnotherTypeException : Exception
 {
     /// <summary>
     /// Constructer.
     /// </summary>
-    /// <param name="message">mesage. </param>
-    public AnotherTypeException(string message): base(message)
+    /// <param name="message">mesage exception. </param>
+    public AnotherTypeException(string message)
+    : base(message)
     {
     }
 }

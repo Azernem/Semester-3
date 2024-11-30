@@ -43,7 +43,6 @@ public class FileMatrix
     /// <returns> Generated matrix.</returns>
     public static int[,] GenerateMatrix(int sizeRows, int sizeColumns)
     {
-        var random = new Random();
         var matrix = new int[sizeRows, sizeColumns];
 
         for (var i = 0; i < sizeRows; i++)
@@ -58,9 +57,20 @@ public class FileMatrix
     }
 
     /// <summary>
+    /// Get matrix.
+    /// </summary>
+    /// <returns>file matrix.</returns>
+    public int[,] GetMatrix()
+    {
+        return this.matrix;
+    }
+
+    private static Random random = new ();
+
+    /// <summary>
     /// matrix in file.
     /// </summary>
-    public int[,] matrix;
+    private int[,] matrix;
     private string path;
 
     /// <summary>
@@ -107,7 +117,7 @@ public class FileMatrix
             {
                 if (!int.TryParse(strings[i].Split(new char[] { ' ', ',' })[j], out this.matrix[i, j]))
                 {
-                    throw new AnotherTypeException("Incorrect size");
+                    throw new AnotherTypeException($"Value '{this.matrix[i, j]}' at row {i} and column {j} isnt a valid integer.");
                 }
             }
         }

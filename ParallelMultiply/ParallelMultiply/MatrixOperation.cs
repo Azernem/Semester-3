@@ -14,8 +14,8 @@ public static class MatrixOperation
     /// <summary>
     /// Constructor.
     /// </summary>
-    /// <param name="matrix1">First matrix. </param>
-    /// <param name="matrix2">Second matrix.</param>
+    /// <param name="matrix1">First matrix of multiplication, multiplier. </param>
+    /// <param name="matrix2">Second matrix of multiplication, multiplier.</param>
 
     /// <summary>
     /// Compare two matrixes at size.

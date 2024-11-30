@@ -11,8 +11,9 @@ public class IncorrrectSizeException : Exception
     /// <summary>
     /// constructer.
     /// </summary>
-    /// <param name="message">message.</param>
-    public IncorrrectSizeException(string message): base(message)
+    /// <param name="message">message exception.</param>
+    public IncorrrectSizeException(string message)
+    : base(message)
     {
     }
 }

@@ -22,8 +22,8 @@ public class Tests
         string path2 = "../../../matrix2.txt";
         var fileMatrix1 = new FileMatrix(path1);
         var fileMatrix2 = new FileMatrix(path2);
-        Assert.That(MatrixOperation.ParallelMultiply(fileMatrix1.matrix, fileMatrix2.matrix), Is.EqualTo(checkMatrix));
-        Assert.That(MatrixOperation.SequentiallyMultiply(fileMatrix1.matrix, fileMatrix2.matrix), Is.EqualTo(checkMatrix));
+        Assert.That(MatrixOperation.ParallelMultiply(fileMatrix1.GetMatrix(), fileMatrix2.GetMatrix()), Is.EqualTo(checkMatrix));
+        Assert.That(MatrixOperation.SequentiallyMultiply(fileMatrix1.GetMatrix(), fileMatrix2.GetMatrix()), Is.EqualTo(checkMatrix));
     }
 
     /// <summary>
@@ -44,8 +44,8 @@ public class Tests
     {
         string path1 = "../../../Size.txt";
         var fileMatrix = new FileMatrix(path1);
-        Assert.That(fileMatrix.matrix.GetLength(0), Is.EqualTo(2));
-        Assert.That(fileMatrix.matrix.GetLength(1), Is.EqualTo(3));
+        Assert.That(fileMatrix.GetMatrix().GetLength(0), Is.EqualTo(2));
+        Assert.That(fileMatrix.GetMatrix().GetLength(1), Is.EqualTo(3));
     }
 
     /// <summary>
@@ -68,7 +68,7 @@ public class Tests
         string path2 = "../../../Size.txt";
         var fileMatrix1 = new FileMatrix(path1);
         var fileMatrix2 = new FileMatrix(path2);
-        Assert.Throws<СompatibilityException>(() => MatrixOperation.ParallelMultiply(fileMatrix1.matrix, fileMatrix2.matrix));
+        Assert.Throws<СompatibilityException>(() => MatrixOperation.ParallelMultiply(fileMatrix1.GetMatrix(), fileMatrix2.GetMatrix()));
     }
 
     /// <summary>
@@ -105,9 +105,9 @@ public class Tests
         string path2 = "../../../matrix2.txt";
         var fileMatrix1 = new FileMatrix(path1);
         var fileMatrix2 = new FileMatrix(path2);
-        FileMatrix.WriteToFile(MatrixOperation.ParallelMultiply(fileMatrix1.matrix, fileMatrix2.matrix), resultPath);
+        FileMatrix.WriteToFile(MatrixOperation.ParallelMultiply(fileMatrix1.GetMatrix(), fileMatrix2.GetMatrix()), resultPath);
         var fileResultMatrix = new FileMatrix(resultPath);
-        var resultMatrix = fileResultMatrix.matrix;
+        var resultMatrix = fileResultMatrix.GetMatrix();
         Assert.That(resultMatrix, Is.EqualTo(checkMatrix));
     }
 
@@ -121,8 +121,8 @@ public class Tests
         string path2 = "../../../matrix2.txt";
         var fileMatrix1 = new FileMatrix(path1);
         var fileMatrix2 = new FileMatrix(path2);
-        var matrix1 = fileMatrix1.matrix;
-        var matrix2 = fileMatrix2.matrix;
+        var matrix1 = fileMatrix1.GetMatrix();
+        var matrix2 = fileMatrix2.GetMatrix();
         Assert.That(MatrixOperation.ParallelMultiply(matrix1, matrix2), Is.EqualTo(MatrixOperation.SequentiallyMultiply(matrix1, matrix2)));
     }
 }
