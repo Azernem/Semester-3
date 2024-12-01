@@ -12,7 +12,6 @@ using System.Net.Sockets;
 public class Client
 {
     private readonly int port;
-
     private readonly string address;
 
     /// <summary>
