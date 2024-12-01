@@ -1,3 +1,6 @@
+// <copyright file="SimpleFTP.Tests.cs" company="NematMusaev">
+// Copyright (c) PlaceholderCompany. All rights reserved.
+// </copyright>
 namespace Tests;
 
 using NetWork;
@@ -5,8 +8,15 @@ using System.Net;
 using System.Net.Sockets;
 using System.Text;
 
+/// <summary>
+/// class of tests.
+/// </summary>
 public class Tests
 {
+    /// <summary>
+    /// testing of get commande.
+    /// </summary>
+    /// <returns>task.</returns>
     [Test]
     public async Task GetResponseForClient()
     {
@@ -29,6 +39,10 @@ public class Tests
     Assert.That(response, Is.EqualTo(checker));
 }
 
+    /// <summary>
+    /// testing of wrong command.
+    /// </summary>
+    /// <returns>task.</returns>
     [Test]
     public async Task GetError()
     {
@@ -41,6 +55,10 @@ public class Tests
         Assert.That(result, Is.EqualTo(checker));
     }
 
+    /// <summary>
+    /// testing of list command.
+    /// </summary>
+    /// <returns>task.</returns>
     [Test]
     public async Task ListDirectory()
     {
