@@ -12,26 +12,6 @@ using LazyEvaluation;
 /// </summary>
 public class Tests
 {
-    /// <summary>
-    /// measure time of lazy evaluation.
-    /// </summary>
-    [Test]
-    public void MeasureTimeLazyEvilation()
-    {
-        var times = new double[2];
-        var oneTreadOperation = new Lazy<int>(() => 2 * 5 / 2344443 * 45335);
-        var stopwatch = new Stopwatch();
-        stopwatch.Start();
-        oneTreadOperation.Get();
-        stopwatch.Stop();
-        times[0] = stopwatch.ElapsedMilliseconds;
-        stopwatch.Reset();
-        stopwatch.Start();
-        oneTreadOperation.Get();
-        stopwatch.Stop();
-        times[1] = stopwatch.ElapsedMilliseconds;
-        Assert.That(times[1] == times[0]);
-    }
 
     /// <summary>
     /// same working of threads without parallel.

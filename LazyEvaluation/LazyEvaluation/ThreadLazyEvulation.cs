@@ -45,6 +45,6 @@ public class ThreadLazy<T> : ILazy<T>
             }
         }
 
-        return this.value;
+        return this.value ?? throw new InvalidOperationException("Value has not been calculated.");
     }
 }

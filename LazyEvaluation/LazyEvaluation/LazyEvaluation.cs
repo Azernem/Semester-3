@@ -30,16 +30,16 @@ public class Lazy<T> : ILazy<T>
     /// <summary>
     /// Method wich gets value.
     /// </summary>
-    /// <returns>General type/</returns>
+    /// <returns>General type. </returns>
     public T Get()
     {
         if (!this.isCalculated)
         {
-            this.value = supplier();
+            this.value = this.supplier();
             this.isCalculated = true;
             this.supplier = null;
         }
 
-        return this.value;
+        return this.value ?? throw new InvalidOperationException("Value hasnt been calculated.");
     }
 }
