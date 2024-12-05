@@ -81,11 +81,6 @@ public class Reflector
         }
     }
 
-    /// <summary>
-    /// prints class fields to file.
-    /// </summary>
-    /// <param name="writer">writer.</param>
-    /// <param name="someClass">type of my class.</param>
     private static void PrintFields(StreamWriter writer, Type someClass)
     {
         var fields = someClass.GetFields(BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.Instance | BindingFlags.Static);
@@ -101,11 +96,6 @@ public class Reflector
         writer.WriteLine();
     }
 
-    /// <summary>
-    /// prints to file class methodes.
-    /// </summary>
-    /// <param name="writer">writer.</param>
-    /// <param name="someClass">type of my class.</param>
     private static void PrintMethods(StreamWriter writer, Type someClass)
     {
         var methods = someClass.GetMethods(BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.Instance | BindingFlags.Static);
@@ -123,11 +113,6 @@ public class Reflector
         writer.WriteLine();
     }
 
-   /// <summary>
-    /// gets modifieres of memberInfo.
-    /// </summary>
-    /// <param name="writer">writer.</param>
-    /// <param name="memberInfo">typyInfo of member of class.</param>
     private static void PrintModifiers(StreamWriter writer, MemberInfo memberInfo)
     {
         var stringBuilder = new StringBuilder();
@@ -183,11 +168,6 @@ public class Reflector
         writer.Write(stringBuilder.ToString());
     }
 
-    /// <summary>
-    /// gets types with generics of class memebers.
-    /// </summary>
-    /// <param name="memberType">type of field or method.</param>
-    /// <returns>type.</returns>
     private static string GetInfoType(Type memberType)
     {
         var stringBuilder = new StringBuilder();
@@ -206,11 +186,6 @@ public class Reflector
         return stringBuilder.ToString();
     }
 
-    /// <summary>
-    /// prints whole class to .cs.
-    /// </summary>
-    /// <param name="writer">writer.</param>
-    /// <param name="someClass">my class.</param>
     private void PrintClass(StreamWriter writer, Type someClass)
     {
         PrintFields(writer, someClass);
