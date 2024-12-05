@@ -3,14 +3,8 @@
 // </copyright>
 namespace Task2.Tests;
 
-/// <summary>
-/// class of tests.
-/// </summary>
 public class Tests
 {
-    /// <summary>
-    /// checks members of my class at file.
-    /// </summary>
     [Test]
     public void PrintStructure_CreatesFileWithClassDefinition()
     {
@@ -25,25 +19,13 @@ public class Tests
         Assert.IsTrue(fileContent.Contains("private string field;"));
     }
 
-    /// <summary>
-    /// my class.
-    /// </summary>
     public class TestClass
     {
-        /// <summary>
-        /// field in class.
-        /// </summary>
         public int Field;
 
-        /// <summary>
-        /// private field in class.
-        /// </summary>
         private string privateField;
     }
 
-    /// <summary>
-    /// get differences between two classes.
-    /// </summary>
     [Test]
     public void DiffClassesTest()
     {
@@ -56,50 +38,21 @@ public class Tests
         Assert.IsTrue(result.Contains(expectedDifference));
     }
 
-    /// <summary>
-    /// classA.
-    /// </summary>
     public class ClassA
     {
-        /// <summary>
-        /// Field.
-        /// </summary>
         public int Field;
 
-        /// <summary>
-        /// privateField.
-        /// </summary>
         private string privateField;
 
-        /// <summary>
-        /// Method.
-        /// </summary>
         public void Method() { }
     }
-
-    /// <summary>
-    /// classB.
-    /// </summary>
     public class ClassB
     {
-        /// <summary>
-        /// Field.
-        /// </summary>
         public int Field;
 
-        /// <summary>
-        /// Field2.
-        /// </summary>
         public int Field2;
 
-        /// <summary>
-        /// Method.
-        /// </summary>
         public void Method() { }
-
-        /// <summary>
-        /// Method2.
-        /// </summary>
         public void Method2() { }
     }
 }
