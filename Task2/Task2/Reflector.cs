@@ -92,10 +92,10 @@ public class Reflector
 
         foreach (var fieldInfo in fields)
         {
-            var modifiers = GetModifiers(fieldInfo);
-            var fieldType = GetInfoType(fieldInfo.FieldType);
-            var fieldName = fieldInfo.Name;
-            writer.WriteLine($"{modifiers} {fieldType} {fieldName};");
+            PrintModifiers(writer, fieldInfo);
+            writer.Write($"{GetInfoType(fieldInfo.FieldType)} ");
+            writer.Write($"{fieldInfo.Name};");
+            writer.WriteLine();
         }
 
         writer.WriteLine();
@@ -112,23 +112,23 @@ public class Reflector
 
         foreach (var methodInfo in methods)
         {
-            var modifiers = GetModifiers(methodInfo);
-            var methodType = GetInfoType(methodInfo.ReturnType);
-            var methodName = methodInfo.Name;
+            PrintModifiers(writer, methodInfo);
+            writer.Write($"{GetInfoType(methodInfo.ReturnType)} ");
             var parameters = methodInfo.GetParameters().Select(p => $"{GetInfoType(p.ParameterType)} {p.Name}");
             var stringParameters = string.Join(", ", parameters);
-            writer.WriteLine($"{modifiers} {methodType} {methodName}({stringParameters});");
+            writer.Write($"{methodInfo.Name}({stringParameters});");
+            writer.WriteLine();
         }
 
         writer.WriteLine();
     }
 
-    /// <summary>
+   /// <summary>
     /// gets modifieres of memberInfo.
     /// </summary>
+    /// <param name="writer">writer.</param>
     /// <param name="memberInfo">typyInfo of member of class.</param>
-    /// <returns>modifiers.</returns>
-    private static string GetModifiers(MemberInfo memberInfo)
+    private static void PrintModifiers(StreamWriter writer, MemberInfo memberInfo)
     {
         var stringBuilder = new StringBuilder();
         if (memberInfo is FieldInfo)
@@ -180,6 +180,29 @@ public class Reflector
             }
         }
 
+        writer.Write(stringBuilder.ToString());
+    }
+
+    /// <summary>
+    /// gets types with generics of class memebers.
+    /// </summary>
+    /// <param name="memberType">type of field or method.</param>
+    /// <returns>type.</returns>
+    private static string GetInfoType(Type memberType)
+    {
+        var stringBuilder = new StringBuilder();
+        var typeName = memberType.Name;
+        stringBuilder.Append(typeName);
+
+        if (memberType.IsGenericType)
+        {
+            stringBuilder.Append(typeName.Substring(0, typeName.IndexOf("`")));
+            stringBuilder.Append("<");
+            var generices = memberType.GetGenericArguments().Select(arg => GetInfoType(arg));
+            stringBuilder.Append(string.Join(", ", generices));
+            stringBuilder.Append("> ");
+        }
+
         return stringBuilder.ToString();
     }
 
@@ -219,26 +242,4 @@ public class Reflector
         writer.WriteLine();
     }
 
-    /// <summary>
-    /// gets types with generics of class memebers.
-    /// </summary>
-    /// <param name="memberType">type of field or method.</param>
-    /// <returns>type.</returns>
-    private static string GetInfoType(Type memberType)
-    {
-        var stringBuilder = new StringBuilder();
-        var typeName = memberType.Name;
-        stringBuilder.Append(typeName);
-
-        if (memberType.IsGenericType)
-        {
-            stringBuilder.Append(typeName.Substring(0, typeName.IndexOf("`")));
-            stringBuilder.Append("<");
-            var generices = memberType.GetGenericArguments().Select(arg => GetInfoType(arg));
-            stringBuilder.Append(string.Join(", ", generices));
-            stringBuilder.Append(">");
-        }
-
-        return stringBuilder.ToString();
-    }
 }

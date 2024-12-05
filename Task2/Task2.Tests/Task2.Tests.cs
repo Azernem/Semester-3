@@ -30,7 +30,76 @@ public class Tests
     /// </summary>
     public class TestClass
     {
-        public int field;
+        /// <summary>
+        /// field in class.
+        /// </summary>
+        public int Field;
+
+        /// <summary>
+        /// private field in class.
+        /// </summary>
         private string privateField;
+    }
+
+    /// <summary>
+    /// get differences between two classes.
+    /// </summary>
+    [Test]
+    public void DiffClassesTest()
+    {
+        var classA = typeof(ClassA);
+        var classB = typeof(ClassB);
+        string expectedDifference = "String privateField\n" +
+                                    "Int32 Field2\n" +
+                                    "Method2";
+        string result = Reflector.DiffClasses(classA, classB);
+        Assert.IsTrue(result.Contains(expectedDifference));
+    }
+
+    /// <summary>
+    /// classA.
+    /// </summary>
+    public class ClassA
+    {
+        /// <summary>
+        /// Field.
+        /// </summary>
+        public int Field;
+
+        /// <summary>
+        /// privateField.
+        /// </summary>
+        private string privateField;
+
+        /// <summary>
+        /// Method.
+        /// </summary>
+        public void Method() { }
+    }
+
+    /// <summary>
+    /// classB.
+    /// </summary>
+    public class ClassB
+    {
+        /// <summary>
+        /// Field.
+        /// </summary>
+        public int Field;
+
+        /// <summary>
+        /// Field2.
+        /// </summary>
+        public int Field2;
+
+        /// <summary>
+        /// Method.
+        /// </summary>
+        public void Method() { }
+
+        /// <summary>
+        /// Method2.
+        /// </summary>
+        public void Method2() { }
     }
 }
