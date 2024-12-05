@@ -20,7 +20,6 @@ public class Reflector
     public static string DiffClasses(Type a, Type b)
     {
         StringBuilder stringBuilder = new StringBuilder();
-
         var aFields = a.GetFields(BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.Instance | BindingFlags.Static);
         var bFields = b.GetFields(BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.Instance | BindingFlags.Static);
         var aMethods = a.GetMethods(BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.Instance | BindingFlags.Static);
@@ -84,7 +83,6 @@ public class Reflector
     private static void PrintFields(StreamWriter writer, Type someClass)
     {
         var fields = someClass.GetFields(BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.Instance | BindingFlags.Static);
-
         foreach (var fieldInfo in fields)
         {
             PrintModifiers(writer, fieldInfo);
@@ -99,7 +97,6 @@ public class Reflector
     private static void PrintMethods(StreamWriter writer, Type someClass)
     {
         var methods = someClass.GetMethods(BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.Instance | BindingFlags.Static);
-
         foreach (var methodInfo in methods)
         {
             PrintModifiers(writer, methodInfo);
@@ -173,7 +170,6 @@ public class Reflector
         var stringBuilder = new StringBuilder();
         var typeName = memberType.Name;
         stringBuilder.Append(typeName);
-
         if (memberType.IsGenericType)
         {
             stringBuilder.Append(typeName.Substring(0, typeName.IndexOf("`")));
@@ -190,8 +186,6 @@ public class Reflector
     {
         PrintFields(writer, someClass);
         PrintMethods(writer, someClass);
-        this.PrintInterfaces(writer, someClass);
-
         var inheritedClasses = someClass.GetNestedTypes(BindingFlags.Public | BindingFlags.NonPublic);
 
         foreach (var inheritedClass in inheritedClasses)
@@ -201,20 +195,4 @@ public class Reflector
 
         writer.WriteLine("}");
     }
-
-    private void PrintInterfaces(StreamWriter writer, Type someClass)
-    {
-        var interfaces = someClass.GetInterfaces();
-
-        foreach (var interfaceType in interfaces)
-        {
-            writer.WriteLine($"public interface {interfaceType.Name}");
-            writer.WriteLine("{");
-            PrintMethods(writer, interfaceType);
-            writer.WriteLine("}");
-        }
-
-        writer.WriteLine();
-    }
-
 }
