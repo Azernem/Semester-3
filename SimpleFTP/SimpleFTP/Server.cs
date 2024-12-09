@@ -19,7 +19,7 @@ public class Server
     private IPAddress ipAddress;
 
     /// <summary>
-    /// constructor.
+    /// Initializes a new instance of the class.
     /// </summary>
     /// <param name="ipAddress">ipadress server.</param>
     /// <param name="port">port client and server.</param>
