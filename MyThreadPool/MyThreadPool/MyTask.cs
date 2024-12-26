@@ -7,11 +7,13 @@ namespace MyThreadPool;
 /// Class of task.
 /// </summary>
 /// <typeparam name="Tres">return type of task. </typeparam>
-public class MyTask<Tres>: IMyTask<Tres>
+public class MyTask<Tres> : IMyTask<Tres>
 {
     public bool IsCompleted {get; set; }
 
     public Func<Tres> function;
+
+    private List<Action<Tres>> continuations = new List<Action<Tres>>();
 
     private Exception? exception;
 
@@ -22,7 +24,7 @@ public class MyTask<Tres>: IMyTask<Tres>
         IsCompleted = false;
         this.function = func;
     }
-    
+
     private Tres GetResult()
     {
         Tres? result = default;
@@ -50,12 +52,28 @@ public class MyTask<Tres>: IMyTask<Tres>
         else
         {
             IsCompleted = true;
+            RunContinuations(result);
             return result;
         }
     }
 
     public IMyTask<TNewRes> ContinueWith<TNewRes>(Func<Tres, TNewRes> func)
     {
-        return new MyTask<TNewRes>(() => func(this.Result));    
+        var continuationTask = new MyTask<TNewRes>(() => func(this.Result));
+
+        continuations.Add(result =>
+        {
+            continuationTask.function();
+        });
+
+        return continuationTask;
+    }
+
+    private void RunContinuations(Tres result)
+    {
+        foreach (var continuation in continuations)
+        {
+            continuation(result);
+        }
     }
 }
