@@ -5,39 +5,36 @@ namespace MyNUnitWeb.Server.Data;
 
 public class ClassResult
 {
-    public int ClassResultId { get; set; }
-    public string ClassName { get; set; }
-    MyNUnit.ClassResult Status { get; set; }
-    public string? Reason { get; private set; }
-    public List<MethodResult>? MethodResults { get; set; }
-    [JsonIgnore]
-    public int AssemblyResultId { get; set; }
-
-    public ClassResult()
-    {
-
-    }
-
     public ClassResult(ClassReport classReport)
     {
-        ClassName = classReport.className;
-        Status = classReport.state;
+        ClassName = classReport.ClassName;
+        Status = classReport.State;
+
         if (Status == MyNUnit.ClassResult.FAILED)
         {
-            Reason = classReport.reason;
+            FailureReason = classReport.Reason;
         }
         else
         {
-            if (classReport.testReports == null)
+            if (classReport.TestReports == null || classReport.TestReports.Count == 0)
             {
+                MethodResults = new List<MethodResult>();
                 return;
             }
-            MethodResults = new();
-            foreach (var testReport in classReport.testReports)
+
+            MethodResults = new List<MethodResult>();
+            foreach (var testReport in classReport.TestReports)
             {
                 var methodResult = new MethodResult(testReport);
                 MethodResults.Add(methodResult);
             }
         }
     }
+
+    public int AssemblyResultId { get; set; }
+    public int ClassResultId { get; set; }
+    public string ClassName { get; set; }
+    public MyNUnit.ClassResult Status { get; set; }
+    public string? FailureReason { get; private set; }
+    public List<MethodResult>? MethodResults { get; set; }
 }

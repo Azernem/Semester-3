@@ -5,100 +5,100 @@ namespace MyNUnitWeb.Server.Controllers;
 
 [ApiController]
 [Route("[controller]")]
-public class RunTestsController : ControllerBase
+public class TestExecutionController : ControllerBase 
 {
-    private readonly HistoryDbContext _context;
-    private readonly DirectoryInfo _uploads;
+    private readonly HistoryDbContext contextDatabase; 
+    private readonly DirectoryInfo _uploadDirectory;
 
-    public RunTestsController(IWebHostEnvironment env, HistoryDbContext context)
+    public TestExecutionController(IWebHostEnvironment environment, HistoryDbContext databaseContext)
     {
-        _context = context;
-        _uploads = new DirectoryInfo("wwwroot");
+        contextDatabase = databaseContext;
+        _uploadDirectory = new DirectoryInfo("wwwroot/tests");
     }
 
     [HttpGet]
-    [Route("GetHistory")]
-    public IActionResult GetHistory()
+    [Route("RetrieveHistory")]
+    public IActionResult RetrieveHistory()
     {
         try
         {
-            var assemblies = _context.Assemblies.ToList();
+            var assemblies = contextDatabase.Assemblies.ToList();
             foreach (var assembly in assemblies)
             {
-                var classes = _context.Classes.ToList().FindAll(classResult =>
-                    classResult.AssemblyResultId == assembly.AssemblyResultId);
-                foreach (var _class in classes)
+                var relatedClasses = contextDatabase.Classes.Where(classResult => classResult.AssemblyResultId == assembly.AssemblyResultId)
+                    .ToList();
+                foreach (var relatedClass in relatedClasses)
                 {
-                    var methods = _context.Methods.ToList().FindAll(methodResult =>
-                    methodResult.ClassResultId == _class.ClassResultId);
-                    _class.MethodResults = methods;
+                    relatedClass.MethodResults = contextDatabase.Methods .Where(method => method.ClassResultId == relatedClass.ClassResultId)
+                        .ToList();
                 }
-                assembly.ClassResults = classes;
+                assembly.ClassResults = relatedClasses;
             }
-            assemblies.Reverse();
+            assemblies.Sort((x, y) => y.AssemblyResultId.CompareTo(x.AssemblyResultId)); 
             return Ok(assemblies);
         }
-        catch (Exception e)
+        catch (Exception exception)
         {
-            return StatusCode(500, e);
+            return StatusCode(500, exception.Message);
         }
     }
 
-    [HttpPost]
-    [Route("Upload")]
-    public IActionResult Upload(IEnumerable<IFormFile> files)
+     [HttpGet]
+    [Route("ExecuteTests")]
+    public async Task<IActionResult> ExecuteTests()
     {
-        try
-        {
-            foreach (var file in files)
-            {
-                if (file.Length > 0)
-                {
-                    string filePath = Path.Combine(_uploads.Name, file.FileName);
-                    using var fileStream = new FileStream(filePath, FileMode.Create);
-                    file.CopyTo(fileStream);
-                }
-            }
-            return Ok();
-        }
-        catch (Exception e)
-        {
-            return StatusCode(500, e);
-        }
-    }
-
-    [HttpGet]
-    [Route("GetTestResults")]
-    public async Task<IActionResult> TestResults()
-    {
-        var tester = new MyNUnit.MyNUnit(_uploads.FullName);
-        var assemblyReports = tester.RunTests();
-        var assemblyResults = assemblyReports
+        var testRunner = new MyNUnit.MyNUnit(_uploadDirectory.FullName);
+        var testReports = testRunner.RunTests();
+        var assemblyResults = testReports
             .Select(report => new AssemblyResult(report))
             .ToArray();
+
         foreach (var assemblyResult in assemblyResults)
         {
             if (assemblyResult.ClassResults.Count > 0)
             {
-                _context.Assemblies.Add(assemblyResult);
+                contextDatabase.Assemblies.Add(assemblyResult);
             }
             foreach (var classResult in assemblyResult.ClassResults)
             {
-                _context.Classes.Add(classResult);
-                if (classResult.MethodResults == null)
-                    continue;
-                foreach (var methodResult in classResult.MethodResults)
+                contextDatabase.Classes.Add(classResult);
+                if (classResult.MethodResults != null)
                 {
-                    _context.Methods.Add(methodResult);
+                    contextDatabase.Methods.AddRange(classResult.MethodResults);
                 }
             }
         }
-        tester = null;
-        foreach (var file in _uploads.GetFiles())
+
+        foreach (var testFile in _uploadDirectory.GetFiles())
         {
-            file.Delete();
+            testFile.Delete();
         }
-        await _context.SaveChangesAsync();
-        return Redirect("GetHistory");
+
+        await contextDatabase.SaveChangesAsync();
+        return Ok(new { message = "Tests executed and results saved" });
     }
+
+    [HttpPost]
+    [Route("UploadFiles")]
+    public IActionResult UploadFiles(IEnumerable<IFormFile> testAssemblies)
+    {
+        try
+        {
+            foreach (var testFile in testAssemblies)
+            {
+                if (testFile.Length > 0)
+                {
+                    string targetPath = Path.Combine(_uploadDirectory.FullName, testFile.FileName);
+                    using var fileStream = new FileStream(targetPath, FileMode.Create);
+                    testFile.CopyTo(fileStream);
+                }
+            }
+            return Ok(new { message = "Files uploaded successfully" });
+        }
+        catch (Exception exception)
+        {
+            return StatusCode(500, exception.Message);
+        }
+    }
+
 }

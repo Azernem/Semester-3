@@ -24,26 +24,26 @@ public class AssemblyResult
                 switch (methodResult.Status)
                 {
                     case TestResult.PASSED:
-                        Passed++;
+                        PassedTest++;
                         break;
                     case TestResult.FAILED:
-                        Failed++;
+                        FailedTest++;
                         break;
                     case TestResult.IGNORED:
-                        Ignored++;
+                        IgnoredTest++;
                         break;
                 }
             }
         }
     }
 
-    public int AssemblyResultId { get; set; }
-    public string AssemblyName { get; set; } = "";
-    public List<ClassResult> ClassResults { get; set; } = new();
-    public int Passed { get; private set; }
-    public int Failed { get; private set; }
-    public int Ignored { get; private set; }
+    public int PassedTest { get; private set; }
+    public int FailedTest { get; private set; }
+    public int IgnoredTest { get; private set; }
+    public int TestAssemblyId { get; set; }
+    public string Name { get; set; } = ""; 
+    public List<TestResult> TestResults { get; set; } = new();
     [NotMapped]
-    public int TestsNumber => Passed + Failed + Ignored;
-    }
+    public int TestsNumber => PassedTest + FailedTest + IgnoredTest;
 
+}
