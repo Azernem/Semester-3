@@ -8,7 +8,6 @@ using System.Collections.Generic;
 using System.Reflection;
 using System.Threading.Tasks;
 using NUnit.Framework;
-
 /// <summary>
 /// class of tests.
 /// </summary>
