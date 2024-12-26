@@ -1,3 +1,7 @@
+// <copyright file="TestAttribute.cs" company="NematMusaev">
+// Copyright (c) Nemat Musaev. All rights reserved.
+// </copyright>
+
 /// <summary>
 /// Test attribute.
 /// </summary>

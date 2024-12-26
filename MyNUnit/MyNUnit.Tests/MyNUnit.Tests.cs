@@ -1,79 +1,55 @@
-// <copyright file="MyNUnit.Tests.cs" company="NematMusaev">
-// Copyright (c) PlaceholderCompany. All rights reserved.
-// </copyright>
+using System;
+using System.IO;
+using NUnit.Framework;
+using MyNUnit;
+
 namespace MyNUnit.Tests;
 
-using System;
-using System.Collections.Generic;
-using System.Reflection;
-using System.Threading.Tasks;
-using NUnit.Framework;
+public class SampleTests
+{
+    public static bool BeforeClassFlag = false;
+    public static bool AfterClassFlag = false;
 
-/// <summary>
-/// class of tests.
-/// </summary>
-    public class SampleTests
+    [BeforeClass]
+    public static void BeforeClassTests()
     {
-        /// <summary>
-        /// flag of before classes methodes.
-        /// </summary>
-        public static bool BeforeClassFlag = false;
-
-        /// <summary>
-        /// flag of after classes methodes.
-        /// </summary>
-        public static bool AfterClassFlag = false;
-
-        /// <summary>
-        /// before methodes are called.
-        /// </summary>
-        [Tests.BeforeClass]
-        public static void BeforeClassTests()
-        {
-            BeforeClassFlag = true;
-        }
-
-        /// <summary>
-        /// after methodes are called.
-        /// </summary>
-        [Tests.AfterClass]
-        public static void AfterClassTests()
-        {
-            AfterClassFlag = true;
-        }
-
-        /// <summary>
-        /// before tests.
-        /// </summary>
-        [Tests.Before]
-        public void BeforeTest()
-        {
-        }
-
-        /// <summary>
-        /// after methodes are called.
-        /// </summary>
-        [Tests.After]
-        public void AfterTest()
-        {
-        }
-
-        /// <summary>
-        /// main test.
-        /// </summary>
-        [Tests.Test]
-        public void Test1()
-        {
-            Assert.IsTrue(BeforeClassFlag);
-            Assert.IsFalse(AfterClassFlag);
-        }
-
-        /// <summary>
-        /// running of our NUnit.
-        /// </summary>
-        [Test]
-        public void RunTests()
-        {
-            Tests.Run(AppDomain.CurrentDomain.BaseDirectory);
-        }
+        BeforeClassFlag = true;
     }
+
+    [AfterClass]
+    public static void AfterClassTests()
+    {
+        AfterClassFlag = true;
+    }
+
+    [Before]
+    public void BeforeTest() { }
+
+    [After]
+    public void AfterTest() { }
+
+    [Test]
+    public void ShouldSetBeforeClassFlag()
+    {
+        Assert.IsTrue(BeforeClassFlag);
+    }
+
+    [Test]
+    public void ShouldNotAfterClassFlagBeforeTest()
+    {
+        Assert.IsFalse(AfterClassFlag);
+    }
+
+    [Test]
+    public void ShouldExecuteTestsCorrectly()
+    {
+        var testDirectory = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "TestAssemblies");
+        Directory.CreateDirectory(testDirectory);
+
+        var myNUnit = new MyNUnit(testDirectory);
+        var reports = myNUnit.RunTests();
+
+        Assert.IsNotNull(reports);
+        Assert.IsNotEmpty(reports);
+    }
+}

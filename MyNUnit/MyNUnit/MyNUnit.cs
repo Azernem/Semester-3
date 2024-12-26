@@ -1,192 +1,325 @@
 // <copyright file="MyNUnit.cs" company="NematMusaev">
-// Copyright (c) PlaceholderCompany. All rights reserved.
+// Copyright (c) Nemat Musaev. All rights reserved.
 // </copyright>
-namespace MyNUnit.Tests;
 
-using System.Diagnostics;
-using System.Reflection;
-
-/// <summary>
-/// my NUnit.
-/// </summary>
-public static class Tests
+namespace MyNUnit
 {
+    using System.Diagnostics;
+    using System.Reflection;
+
     /// <summary>
-    /// Test attribute.
+    /// MyNUnit.
     /// </summary>
-    public class TestAttribute : Attribute
+    public class MyNUnit
     {
-        /// <summary>
-        /// Argument about exception.
-        /// </summary>
-        public static Type Expected;
+        private readonly string? path;
 
         /// <summary>
-        /// Is ignored method.
+        /// Initializes a new instance of the <see cref="MyNUnit"/> class.
         /// </summary>
-        public static string Ignore;
-    }
-
-    /// <summary>
-    /// befor class attribute.
-    /// </summary>
-    [AttributeUsage(AttributeTargets.Method | AttributeTargets.Class)]
-    public class BeforeClass : Attribute
-    {
-    }
-
-    /// <summary>
-    /// after class attribute.
-    /// </summary>
-    [AttributeUsage(AttributeTargets.Method | AttributeTargets.Class)]
-    public class AfterClass : Attribute
-    {
-    }
-
-    /// <summary>
-    /// Before attribute.
-    /// </summary>
-    [AttributeUsage(AttributeTargets.Method)]
-    public class Before : Attribute
-    {
-    }
-
-    /// <summary>
-    /// after attribute.
-    /// </summary>
-    [AttributeUsage(AttributeTargets.Method)]
-    public class After : Attribute
-    {
-    }
-
-    /// <summary>
-    /// main method of running.
-    /// </summary>
-    /// <param name="path">path with types. </param>
-    /// <exception cref="ArgumentException">argument exception. </exception>
-    public static void Run(string path)
-    {
-        if (!Directory.Exists(path))
+        /// <param name="path">Path to the assemblies to test.</param>
+        public MyNUnit(string path)
         {
-            throw new ArgumentException("path must be without directories");
+            path = path ?? throw new ArgumentNullException("path cant be empty");
         }
 
-        foreach (var dll in Directory.GetFiles(path, "*dll."))
+        /// <summary>
+        /// Runs tests in the assemblies.
+        /// </summary>
+        /// <returns>A list of assembly reports.</returns>
+        /// <exception cref="ArgumentException">Thrown if the path is invalid.</exception>
+        public List<AssemblyReport> RunTests()
         {
-            var assembly = Assembly.Load(dll);
-
-            foreach (var type in assembly.GetTypes())
+            if (!Directory.Exists(this.path))
             {
-                foreach (var methodinfo in type.GetMethods())
+                throw new ArgumentException("Path must exist and contain assemblies.");
+            }
+
+            var assemblyReports = new List<AssemblyReport>();
+
+            foreach (var dll in Directory.GetFiles(this.path, "*.dll"))
+            {
+                var assembly = Assembly.LoadFrom(dll);
+                var assemblyReport = new AssemblyReport
                 {
-                    foreach (var attribute in methodinfo.GetCustomAttributes())
+                    AssemblyName = Path.GetFileName(dll),
+                };
+
+                var tasks = new List<Task>();
+                foreach (var type in assembly.GetTypes())
+                {
+                    tasks.Add(Task.Run(() =>
                     {
-                        if (attribute.GetType() == typeof(TestAttribute))
-                        {
-                            BeforeRun(type);
-                            TestRun(type);
-                            AfterRun(type);
-                            break;
-                        }
+                    var classReport = this.RunTestsForType(type);
+                    if (classReport != null)
+                    {
+                        assemblyReport.ClassReports.Add(classReport);
+                    }
+                    }));
+                }
+
+                Task.WhenAll(tasks).Wait();
+
+                assemblyReports.Add(assemblyReport);
+            }
+
+            return assemblyReports;
+        }
+
+        /// <summary>
+        /// Executes all methods with a specific attribute.
+        /// </summary>
+        /// <typeparam name="T">The attribute type.</typeparam>
+        /// <param name="type">The type containing the methods.</param>
+        /// <param name="instance">The instance of the type.</param>
+        private static void ExecuteMethods<T>(Type type, object? instance)
+        where T : Attribute
+        {
+            foreach (var method in type.GetMethods().Where(m => m.GetCustomAttributes(typeof(T), false).Any()))
+            {
+                try
+                {
+                    method.Invoke(instance, null);
+                }
+                catch (Exception ex)
+                {
+                    Console.WriteLine($"Error in method {method.Name}: {ex.Message}");
+                }
+            }
+        }
+
+           /// <summary>
+        /// Executes all static methods with a specific attribute.
+        /// </summary>
+        /// <typeparam name="T">The attribute type.</typeparam>
+        /// <param name="type">The type containing the methods.</param>
+        /// <returns>True if all methods executed successfully, otherwise false.</returns>
+        private static bool ExecuteStaticMethods<T>(Type type)
+        where T : Attribute
+        {
+            foreach (var method in type.GetMethods().Where(m => m.GetCustomAttributes(typeof(T), false).Any()))
+            {
+                try
+                {
+                    method.Invoke(null, null);
+                }
+                catch (Exception ex)
+                {
+                    Console.WriteLine($"Error in static method {method.Name}: {ex.Message}");
+                    return false;
+                }
+            }
+
+            return true;
+        }
+
+        /// <summary>
+        /// Runs tests for a type.
+        /// </summary>
+        /// <param name="type">The type to test.</param>
+        /// <returns>A class report with test results.</returns>
+        private ClassReport? RunTestsForType(Type type)
+        {
+            if (!ExecuteStaticMethods<BeforeClass>(type))
+            {
+                return new ClassReport
+                {
+                    ClassName = type.Name,
+                    State = ClassResult.FAILED,
+                    Reason = "Error in BeforeClass methods.",
+                };
+            }
+
+            var testReports = new List<TestReport>();
+            foreach (var method in type.GetMethods().Where(m => m.GetCustomAttributes(typeof(TestAttribute), false).Any()))
+            {
+                var testReport = this.ExecuteTest(method, type);
+                testReports.Add(testReport);
+            }
+
+            if (!ExecuteStaticMethods<AfterClass>(type))
+            {
+                return new ClassReport
+                {
+                    ClassName = type.Name,
+                    State = ClassResult.FAILED,
+                    Reason = "Error in AfterClass methods.",
+                };
+            }
+
+            return new ClassReport
+            {
+                ClassName = type.Name,
+                State = testReports.Any(r => r.State == TestResult.FAILED) ? ClassResult.FAILED : ClassResult.PASSED,
+                TestReports = testReports,
+            };
+        }
+
+        /// <summary>
+        /// Executes a specific test method.
+        /// </summary>
+        /// <param name="method">The method to execute.</param>
+        /// <param name="type">The type containing the method.</param>
+        /// <returns>A report of the test result.</returns>
+        private TestReport ExecuteTest(MethodInfo method, Type type)
+        {
+            var testAttribute = method.GetCustomAttribute<TestAttribute>();
+            var instance = Activator.CreateInstance(type);
+            var stopwatch = new Stopwatch();
+
+            var report = new TestReport
+            {
+                MethodName = method.Name,
+                State = TestResult.FAILED,
+            };
+
+            if (testAttribute?.Ignore != null)
+            {
+                report.State = TestResult.IGNORED;
+                report.Reason = testAttribute.Ignore;
+                return report;
+            }
+
+            try
+            {
+                ExecuteMethods<Before>(type, instance);
+                stopwatch.Start();
+
+                try
+                {
+                    method.Invoke(instance, null);
+                    stopwatch.Stop();
+                    report.State = TestResult.PASSED;
+                    if (testAttribute.Expected != null)
+                    {
+                        report.State = TestResult.FAILED;
+                        report.Reason = "Expected exception wasnt thrown.";
                     }
                 }
-            }
-        }
-    }
-
-    private static void BeforeRun(Type type)
-    {
-        var beforeClassMethodes = type.GetMethods().Where(m => m.GetCustomAttributes(typeof(BeforeClass), false).Any());
-
-        foreach (var method in beforeClassMethodes)
-        {
-            method.Invoke(null, null);
-        }
-
-        var beforeMethodes = type.GetMethods().Where(m => m.GetCustomAttributes(typeof(Before), false).Any());
-
-        foreach (var method in beforeMethodes)
-        {
-            method.Invoke(Activator.CreateInstance(type), null);
-        }
-    }
-
-    private static void TestRun(Type type)
-    {
-        var tasks = new List<Task>();
-        var testmethodes = new List<MethodInfo>();
-
-        foreach (var methodinfo in type.GetMethods())
-        {
-            foreach (var attribute in methodinfo.GetCustomAttributes())
-            {
-                if (attribute.GetType() == typeof(TestAttribute))
+                catch (TargetInvocationException ex)
                 {
-                    testmethodes.Add(methodinfo);
-                }
-            }
-        }
-
-        foreach (var method in testmethodes)
-        {
-                tasks.Add(Task.Run(() => {
-                    if (!string.IsNullOrEmpty(TestAttribute.Ignore))
+                    stopwatch.Stop();
+                    var actualException = ex.InnerException;
+                    if (testAttribute != null && testAttribute.Expected != null && actualException?.GetType() == testAttribute.Expected)
                     {
-                        var stopwatch = new Stopwatch();
-                        try
-                        {
-                            stopwatch.Start();
-                            method.Invoke(Activator.CreateInstance(type), null);
-                            stopwatch.Stop();
-                            Console.WriteLine($"Test {method.Name} was completed for {stopwatch.ElapsedMilliseconds} - ms, cause is {TestAttribute.Ignore}");
-                            stopwatch.Reset();
-                        }
-                        catch (Exception ex)
-                        {
-                            stopwatch.Stop();
-
-                            if (TestAttribute.Expected == ex.GetType())
-                            {
-                                Console.WriteLine($"Test {method.Name} was failed for {stopwatch.ElapsedMilliseconds} - ms ");
-                            }
-
-                            stopwatch.Reset();
-                        }
+                        report.State = TestResult.PASSED;
+                        report.Reason = "Expected exception was thrown.";
                     }
                     else
                     {
-                        Console.WriteLine($"Test {method.Name} was ignored.");
+                        report.Reason = actualException?.Message;
                     }
-                }));
-        }
+                }
+                finally
+                {
+                    ExecuteMethods<After>(type, instance);
+                }
+            }
+            catch (Exception ex)
+            {
+                report.Reason = ex.Message;
+                report.State = TestResult.FAILED;
+            }
 
-        Task.WhenAll(tasks);
+            report.TimeElapsed = stopwatch.ElapsedMilliseconds;
+            return report;
+        }
     }
 
-    private static void AfterRun(Type type)
+    /// <summary>
+    /// TestReport class.
+    /// </summary>
+    public class TestReport
     {
-        var afterClassMethodes = type.GetMethods().Where(m => m.GetCustomAttributes(typeof(AfterClass), false).Any());
+        /// <summary>
+        /// Gets or sets Name if method.
+        /// </summary>
+        public string MethodName { get; set; }
 
-        foreach (var method in afterClassMethodes)
-        {
-            var stopwatch = new Stopwatch();
-            stopwatch.Start();
-            method.Invoke(null, null);
-            stopwatch.Stop();
-            Console.WriteLine($"AfterClass test {method.Name} was completed for {stopwatch.ElapsedMilliseconds} - ms");
-            stopwatch.Reset();
-        }
+        /// <summary>
+        /// Gets or sets Status of Method.
+        /// </summary>
+        public TestResult State { get; set; }
 
-        var afterMethodes = type.GetMethods().Where(m => m.GetCustomAttributes(typeof(After), false).Any());
+        /// <summary>
+        /// Gets or sets Reason of failing.
+        /// </summary>
+        public string? Reason { get; set; }
 
-        foreach (var method in afterMethodes)
-        {
-            var stopwatch = new Stopwatch();
-            stopwatch.Start();
-            method.Invoke(Activator.CreateInstance(type), null);
-            stopwatch.Stop();
-            Console.WriteLine($"After test was completed for {stopwatch.ElapsedMilliseconds} - ms");
-            stopwatch.Reset();
-        }
+        /// <summary>
+        /// Gets or sets expected exception.
+        /// </summary>
+        public object? Expected { get; set; }
+
+        /// <summary>
+        /// Gets or sets Was.
+        /// </summary>
+        public object? Was { get; set; }
+
+        /// <summary>
+        /// Gets or sets Time exuting.
+        /// </summary>
+        public long TimeElapsed { get; set; }
+    }
+
+    /// <summary>
+    /// class results.
+    /// </summary>
+    public class ClassReport
+    {
+        /// <summary>
+        /// Gets or sets Name if method.
+        /// </summary>
+        public string ClassName { get; set; }
+
+        /// <summary>
+        /// Gets or sets Reason of failing.
+        /// </summary>
+        public ClassResult State { get; set; }
+
+        /// <summary>
+        /// Gets or setsReason of failing.
+        /// </summary>
+        public string? Reason { get; set; }
+
+        /// <summary>
+        /// Gets or setsMethod results.
+        /// </summary>
+        public List<TestReport>? TestReports { get; set; }
+    }
+
+    /// <summary>
+    /// assembly result.
+    /// </summary>
+    public class AssemblyReport
+    {
+        /// <summary>
+        /// nGets or sets ame of assembly.
+        /// </summary>
+        public string AssemblyName { get; set; }
+
+        /// <summary>
+        /// Gets or sets class results.
+        /// </summary>
+        public List<ClassReport> ClassReports { get; set; } = new ();
+    }
+
+    /// <summary>
+    /// emun of test reults.
+    /// </summary>
+    public enum TestResult
+    {
+        PASSED,
+        FAILED,
+        IGNORED
+    }
+
+    /// <summary>
+    /// emun of class reults.
+    /// </summary>
+    public enum ClassResult
+    {
+        PASSED,
+        FAILED,
     }
 }
