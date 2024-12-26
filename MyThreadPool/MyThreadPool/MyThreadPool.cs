@@ -1,93 +1,184 @@
-// <copyright file="MyThreadPool.cs" company="NematMusaev">
-// Copyright (c) PlaceholderCompany. All rights reserved.
-// </copyright>
-using System.Threading;
-using System.Collections.Generic;
+namespace MyThreadPoolNamespace;
 
-namespace MyThreadPool;
-
-/// <summary>
-/// pool of threads wich are working with tasks.
-/// </summary>
-/// <typeparam name="Tres">Result of functions in threads(queue). </typeparam>
-public class MyThreadPool<Tres>
+public class MyThreadPool
 {
-    private Thread[] pool;
+    private readonly object lockObject = new();
+    private readonly CancellationTokenSource canselToken = new();
+    private readonly Thread[] threads;
+    private readonly Queue<Action> queue = new();
+    private readonly AutoResetEvent workAvailable = new(false);
+    private readonly ManualResetEvent terminationEvent = new(false);
 
-    private CancellationTokenSource cancellationToken = new();
-
-    public Queue<Func<Tres>> queue = new();
-
-    public MyThreadPool(int value)
+    public MyThreadPool(int threadCount)
     {
-        pool = new Thread[value];
+        ArgumentOutOfRangeException.ThrowIfNegativeOrZero(threadCount);
 
-        for (var i = 0; i < value; i++)
+        threads = new Thread[threadCount];
+        for (int i = 0; i < threadCount; i++)
         {
-            pool[i] = new Thread(() => {GetTask(); });
-        }
-
-        foreach (var thread in pool)
-        {
-            thread.Start();
+            threads[i] = new Thread(() => WorkerLoop());
+            threads[i].Start();
         }
     }
 
-    private void GetTask()
+    private void WorkerLoop()
     {
-        while(! cancellationToken.IsCancellationRequested)
+        while (!canselToken.IsCancellationRequested || queue.Count > 0)
         {
-            lock(queue)
+            Action? work = null;
+            lock (lockObject)
             {
-                while (queue.Count == 0)
+                while (queue.Count == 0 && !canselToken.IsCancellationRequested)
                 {
-                    Monitor.Wait(queue);
+                    Monitor.Wait(lockObject);
                 }
 
-                queue.Dequeue()();
-            }
-        }
-
-        if (cancellationToken.IsCancellationRequested)
-        {
-            while(queue.Count > 0)
-            {
-                lock(queue)
+                if (queue.Count > 0)
                 {
-                    queue.Dequeue()();
+                    work = queue.Dequeue();
                 }
             }
+            work?.Invoke();
         }
     }
 
-    public MyTask<Tres> Submit(Func<Tres> func)
+    public void ShutDown()
     {
-        if (cancellationToken.IsCancellationRequested)
+        lock (lockObject)
         {
-            throw new Exception("pool are shut dawn");
-        }   
-
-        var myTask = new MyTask<Tres>(func);
-        lock(queue)
-        {
-            queue.Enqueue(myTask.function);
-            Monitor.Pulse(queue);
+            canselToken.Cancel();
+            terminationEvent.Set();
+            Monitor.PulseAll(lockObject);
         }
 
-        return myTask;
-    }
-
-    public void Shutdawn()
-    {
-        cancellationToken.Cancel();
-        lock(queue)
-        {
-            Monitor.PulseAll(queue);
-        }
-
-        foreach(var thread in pool)
+        foreach (var thread in threads)
         {
             thread.Join();
         }
     }
+
+    public IMyTask<TResult> Submit<TResult>(Func<TResult> func)
+    {
+        lock (lockObject)
+        {
+            if (canselToken.IsCancellationRequested)
+            {
+                throw new OperationCanceledException();
+            }
+
+            var myTask = new MyTask<TResult>(func, this);
+
+            lock (lockObject)
+            {
+                queue.Enqueue(myTask.Execute);
+                Monitor.Pulse(lockObject);
+            }
+            workAvailable.Set();
+            return myTask;
+        }
+    }
+
+    public class MyTask<TResult> : IMyTask<TResult>
+    {
+        private readonly CancellationToken cancellationToken;
+        private readonly MyThreadPool pool;
+        private readonly object objectLock = new();
+        private readonly List<Action> continuations = new();
+        private Exception? taskException;
+        private TResult? taskResult;
+        private Func<TResult>? function;
+        private bool isFinished;
+        public TResult Result => GetResult();
+
+        public MyTask(Func<TResult> func, MyThreadPool threadPool)
+        {
+            pool = threadPool;
+            function = func;
+            cancellationToken = threadPool.canselToken.Token;
+        }
+
+        public bool IsFinished
+        {
+            get { lock (objectLock) { return isFinished; } }
+            private set { lock (objectLock) { isFinished = value; } }
+        }
+
+        public void Execute()
+        {
+            try
+            {
+                if (function != null)
+                {
+                    taskResult = function();
+                    function = null;
+                }
+            }
+            catch (Exception ex)
+            {
+                taskException = ex;
+            }
+
+            lock (objectLock)
+            {
+                IsFinished = true;
+                Monitor.PulseAll(objectLock);
+                foreach (var continuation in continuations)
+                {
+                    lock (objectLock)
+                    {
+                        pool.queue.Enqueue(continuation);
+                        Monitor.Pulse(objectLock);
+                    }
+
+                    pool.workAvailable.Set();
+                }
+                continuations.Clear();
+            }
+        }
+
+        private TResult GetResult()
+        {
+            lock (objectLock)
+            {
+                while (!IsFinished)
+                {
+                    Monitor.Wait(objectLock);
+                }
+
+                if (taskException != null)
+                {
+                    throw new AggregateException(taskException);
+                }
+                
+                return taskResult ?? throw new InvalidOperationException("Task completed without a result.");
+            }
+        }
+
+        public IMyTask<TNewResult> ContinueWith<TNewResult>(Func<TResult, TNewResult> continuation)
+        {
+            lock (objectLock)
+            {
+                if (cancellationToken.IsCancellationRequested)
+                {
+                    throw new OperationCanceledException();
+                }
+
+                if (IsFinished)
+                {
+                    return pool.Submit(() => continuation(Result));
+                }
+
+                var nextTask = new MyTask<TNewResult>(() => continuation(Result), pool);
+                continuations.Add(nextTask.Execute);
+                return nextTask;
+            }
+        }
+    }
+}
+
+public interface IMyTask<out TResult>
+{
+    bool IsFinished { get; }
+    TResult Result { get; }
+    IMyTask<TNewResult> ContinueWith<TNewResult>(Func<TResult, TNewResult> func);
 }
