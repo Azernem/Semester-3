@@ -17,7 +17,7 @@ public class Tests
     [Test]
     public void TestResultOfTasks()
     {
-        var pool = new MyThreadPool<int>(4);
+        var pool = new MyThreadPool(4);
         var check = new int[4] { 1, 2, 3, 4 };
         var result = new int[4];
         result[0] = pool.Submit(() => 1).Result;
@@ -34,7 +34,7 @@ public class Tests
     public void GetSameTasks()
     {
         var checktask = new MyTask<string>(() => "eeree");
-        var pool = new MyThreadPool<string>(4);
+        var pool = new MyThreadPool(4);
         var myTask = pool.Submit(() => "eeree");
         Assert.That(checktask, Is.EqualTo(myTask));
     }

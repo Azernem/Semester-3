@@ -1,5 +1,8 @@
 namespace MyThreadPoolNamespace;
 
+/// <summary>
+/// Thread pool class.
+/// </summary>
 public class MyThreadPool
 {
     private readonly object lockObject = new();
@@ -9,6 +12,10 @@ public class MyThreadPool
     private readonly AutoResetEvent workAvailable = new(false);
     private readonly ManualResetEvent terminationEvent = new(false);
 
+    /// <summary>
+    /// Initializes a new instance of the <see cref="MyThreadPool"/> class.
+    /// </summary>
+    /// <param name="threadCount">count of threds.</param>
     public MyThreadPool(int threadCount)
     {
         ArgumentOutOfRangeException.ThrowIfNegativeOrZero(threadCount);
@@ -41,7 +48,10 @@ public class MyThreadPool
             work?.Invoke();
         }
     }
-
+    
+    /// <summary>
+    /// interrupts working.
+    /// </summary>
     public void ShutDown()
     {
         lock (lockObject)
@@ -57,6 +67,13 @@ public class MyThreadPool
         }
     }
 
+    /// <summary>
+    /// GEts MyTask.
+    /// </summary>
+    /// <typeparam name="TResult">MyTask</typeparam>
+    /// <param name="func">function of our task.</param>
+    /// <returns>MyTask object</returns>
+    /// <exception cref="OperationCanceledException"Cansel Exception.</exception>
     public IMyTask<TResult> Submit<TResult>(Func<TResult> func)
     {
         lock (lockObject)
@@ -77,7 +94,11 @@ public class MyThreadPool
             return myTask;
         }
     }
-
+    
+    /// <summary>
+    /// class MyTask
+    /// </summary>
+    /// <typeparam name="TResult">general type.</typeparam>
     public class MyTask<TResult> : IMyTask<TResult>
     {
         private readonly CancellationToken cancellationToken;
@@ -88,12 +109,20 @@ public class MyThreadPool
         private TResult? taskResult;
         private Func<TResult>? function;
         private bool isFinished;
+        /// <summary>
+        /// Gets Result.
+        /// </summary>
         public TResult Result => GetResult();
 
+        /// <summary>
+        /// Initializes a new instance of the <see cref="MyThreadPool"/> class.
+        /// </summary>
+        /// <param name="func">task function</param>
+        /// <param name="threadPool"></param>
         public MyTask(Func<TResult> func, MyThreadPool threadPool)
         {
             pool = threadPool;
-            function = func;
+            function = func;pool
             cancellationToken = threadPool.canselToken.Token;
         }
 
@@ -176,6 +205,10 @@ public class MyThreadPool
     }
 }
 
+/// <summary>
+/// MyTask interface.
+/// </summary>
+/// <typeparam name="TResult"></typeparam>
 public interface IMyTask<out TResult>
 {
     bool IsFinished { get; }
