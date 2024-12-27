@@ -15,11 +15,12 @@ using System.Dynamic;
 /// </summary>
 public class Server
 {
+    private readonly CancellationTokenSource cansellToken = new ();
     private int port;
     private IPAddress ipAddress;
 
     /// <summary>
-    /// Initializes a new instance of the class.
+    /// Initializes a new instance of the <see cref="Server"/> class.
     /// </summary>
     /// <param name="ipAddress">ipadress server.</param>
     /// <param name="port">port client and server.</param>
@@ -38,26 +39,26 @@ public class Server
     {
         using var listener = new TcpListener(this.ipAddress, this.port);
         listener.Start();
-        while (true)
+        while (!this.cansellToken.Token.IsCancellationRequested)
         {
             using var socket = await listener.AcceptSocketAsync();
             await Task.Run(async () =>
             {
                 using var stream = new NetworkStream(socket);
                 using var reader = new StreamReader(stream);
-                string stringcommande = await reader.ReadLineAsync() ?? throw new NullReferenceException("stringcomand cant be null");
-                var commande = stringcommande.Split(' ');
+                var stringcommand = await reader.ReadLineAsync() ?? throw new NullReferenceException("stringcomand cant be null");
+                var command = stringcommand.Split(' ');
 
                 try
                 {
-                    var path = commande[1];
+                    var path = command[1];
                     if (!(File.Exists(path) || Directory.Exists(path)))
                     {
                         await this.SendError(stream);
                     }
 
                     int number;
-                    int.TryParse(commande[0], out number);
+                    int.TryParse(command[0], out number);
                     switch (number)
                     {
                         case 1:
@@ -85,8 +86,18 @@ public class Server
                     Console.WriteLine(ex.Message);
                     Console.WriteLine("Command must be either 1 or 2.");
                 }
+
+                socket.Close();
             });
         }
+    }
+
+    /// <summary>
+    /// interrupts working.
+    /// </summary>
+    public void Stop()
+    {
+        this.cansellToken.Cancel();
     }
 
     private async Task SendError(Stream stream)
