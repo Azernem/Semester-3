@@ -17,7 +17,7 @@ public class Lazy<T> : ILazy<T>
     private Func<T>? supplier;
 
     /// <summary>
-    /// Constructer.
+    /// Initializes a new instance of the <see cref="Lazy"/> class.
     /// </summary>
     /// <param name="supplier">Function wich returns tupe T.</param>
     /// <exception cref="NullException">Null exception.</exception>
@@ -35,7 +35,7 @@ public class Lazy<T> : ILazy<T>
     {
         if (!this.isCalculated)
         {
-            this.value = this.supplier();
+            this.value = this.supplier!();
             this.isCalculated = true;
             this.supplier = null;
         }

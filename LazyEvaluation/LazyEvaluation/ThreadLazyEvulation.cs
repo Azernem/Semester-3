@@ -15,13 +15,12 @@ public class ThreadLazy<T> : ILazy<T>
     private Func<T>? supplier;
 
     /// <summary>
-    /// Constructer.
+    /// Initializes a new instance of the <see cref="Lazy"/> class.
     /// </summary>
     /// <param name="supplier">Function wich returns tupe Tю\.</param>
     /// <exception cref="NullException">Null exception.</exception>
     public ThreadLazy(Func<T> supplier)
     {
-        this.isCalculated = false;
         this.supplier = supplier ?? throw new ArgumentNullException("its null element");
         this.lockObject = new object();
     }
@@ -38,7 +37,7 @@ public class ThreadLazy<T> : ILazy<T>
             {
                 if (!this.isCalculated)
                 {
-                    this.value = this.supplier();
+                    this.value = this.supplier!();
                     this.isCalculated = true;
                     this.supplier = null;
                 }

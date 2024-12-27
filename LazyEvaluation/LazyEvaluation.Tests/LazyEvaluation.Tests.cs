@@ -20,9 +20,9 @@ public class Tests
     public void GetSameValues()
     {
         var value = 1;
-        var lazyOperation = new Lazy<int>(() => {
+        var lazyOperation = new Lazy<int>(() =>
+        {
             value++;
-
             return value;
         });
         Assert.That(lazyOperation.Get(), Is.EqualTo(2));
@@ -38,9 +38,9 @@ public class Tests
     {
         var value = 1;
         var results = new int[4];
-        var threadLazyOperation = new ThreadLazy<int>(() => {
-            value++;
-
+        var threadLazyOperation = new ThreadLazy<int>(() =>
+        {
+            Interlocked.Increment(ref value);
             return value;
         });
         var threads = new Thread[4];

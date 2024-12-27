@@ -7,7 +7,11 @@ namespace LazyEvaluation;
 /// Interface of Lazy evulation classes.
 /// </summary>
 /// <typeparam name="T">General Type.</typeparam>
-public interface ILazy<T>
+public interface ILazy<out T>
 {
+    /// <summary>
+    /// Gets value supplier.
+    /// </summary>
+    /// <returns>value.</returns>
     T Get();
 }
