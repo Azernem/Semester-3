@@ -1,0 +1,26 @@
+﻿
+#root {
+    max-width: 100%;
+    margin: 0 auto;
+    padding: 2rem;
+    text-align: left;
+}
+
+
+tr:nth-child(even) {
+    background: #E0E0E0; 
+}
+
+
+tr:nth-child(odd) {
+    background: #FFFFFF;
+}
+
+th, td {
+    padding-left: 1rem;
+    padding-right: 1rem;
+    padding-top: 0.5rem;
+    padding-bottom: 0.5rem; 
+}
+
+
