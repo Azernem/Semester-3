@@ -83,4 +83,4 @@ public class Tests
         pool.ShutDown();
         Assert.Throws<OperationCanceledException>(() => checkTask.ContinueWith<string>(x => x.ToString()));
     }
-} 
+}
