@@ -1,41 +1,42 @@
-namespace MyThreadPoolNamespace;
+// <copyright file="Program.cs" company="NematMusaev">
+// Copyright (c) Nemat Musaev. All rights reserved.
+// </copyright>
+namespace MyThreadPool;
 
 /// <summary>
 /// Thread pool class.
 /// </summary>
-public class MyThreadPool
+public class ThreadPool
 {
-    private readonly object lockObject = new();
-    private readonly CancellationTokenSource canselToken = new();
+    private readonly object lockObject = new ();
+    private readonly CancellationTokenSource cancellationToken = new ();
     private readonly Thread[] threads;
-    private readonly Queue<Action> queue = new();
-    private readonly AutoResetEvent workAvailable = new(false);
-    private readonly ManualResetEvent terminationEvent = new(false);
+    private readonly Queue<Action> queue = new ();
 
     /// <summary>
     /// Initializes a new instance of the <see cref="MyThreadPool"/> class.
     /// </summary>
     /// <param name="threadCount">count of threds.</param>
-    public MyThreadPool(int threadCount)
+    public ThreadPool(int threadCount)
     {
         ArgumentOutOfRangeException.ThrowIfNegativeOrZero(threadCount);
 
         threads = new Thread[threadCount];
         for (int i = 0; i < threadCount; i++)
         {
-            threads[i] = new Thread(() => WorkerLoop());
+            threads[i] = new Thread(WorkerLoop);
             threads[i].Start();
         }
     }
 
     private void WorkerLoop()
     {
-        while (!canselToken.IsCancellationRequested || queue.Count > 0)
+        while (!cancellationToken.IsCancellationRequested || queue.Count > 0)
         {
             Action? work = null;
             lock (lockObject)
             {
-                while (queue.Count == 0 && !canselToken.IsCancellationRequested)
+                while (queue.Count == 0 && !cancellationToken.IsCancellationRequested)
                 {
                     Monitor.Wait(lockObject);
                 }
@@ -56,8 +57,7 @@ public class MyThreadPool
     {
         lock (lockObject)
         {
-            canselToken.Cancel();
-            terminationEvent.Set();
+            cancellationToken.Cancel();
             Monitor.PulseAll(lockObject);
         }
 
@@ -68,7 +68,7 @@ public class MyThreadPool
     }
 
     /// <summary>
-    /// GEts MyTask.
+    /// Gets my Task and added him to action queue.
     /// </summary>
     /// <typeparam name="TResult">MyTask</typeparam>
     /// <param name="func">function of our task.</param>
@@ -78,19 +78,15 @@ public class MyThreadPool
     {
         lock (lockObject)
         {
-            if (canselToken.IsCancellationRequested)
+            if (cancellationToken.IsCancellationRequested)
             {
                 throw new OperationCanceledException();
             }
 
             var myTask = new MyTask<TResult>(func, this);
+            queue.Enqueue(myTask.Execute);
+            Monitor.Pulse(lockObject);
 
-            lock (lockObject)
-            {
-                queue.Enqueue(myTask.Execute);
-                Monitor.Pulse(lockObject);
-            }
-            workAvailable.Set();
             return myTask;
         }
     }
@@ -102,28 +98,48 @@ public class MyThreadPool
     public class MyTask<TResult> : IMyTask<TResult>
     {
         private readonly CancellationToken cancellationToken;
-        private readonly MyThreadPool pool;
-        private readonly object objectLock = new();
-        private readonly List<Action> continuations = new();
+        private readonly ThreadPool pool;
+        private readonly object objectLock = new ();
+        private readonly List<Action> continuations = new ();
         private Exception? taskException;
         private TResult? taskResult;
         private Func<TResult>? function;
         private bool isFinished;
+
         /// <summary>
         /// Gets Result.
         /// </summary>
-        public TResult Result => GetResult();
+        public TResult Result
+        {
+            get
+            {
+                lock (objectLock)
+                {
+                    while (!IsFinished)
+                    {
+                        Monitor.Wait(objectLock);
+                    }
+
+                    if (taskException != null)
+                    {
+                        throw new AggregateException(taskException);
+                    }
+
+                    return taskResult ?? throw new InvalidOperationException("Task completed without a result.");
+                }
+            }
+        }
 
         /// <summary>
-        /// Initializes a new instance of the <see cref="MyThreadPool"/> class.
+        /// Initializes a new instance of the <see cref="MyTask"/> class.
         /// </summary>
-        /// <param name="func">task function</param>
-        /// <param name="threadPool"></param>
-        public MyTask(Func<TResult> func, MyThreadPool threadPool)
+        /// <param name="func">task function.</param>
+        /// <param name="threadPool">pool (array) of threads.</param>
+        public MyTask(Func<TResult> func, ThreadPool threadPool)
         {
             pool = threadPool;
-            function = func;pool
-            cancellationToken = threadPool.canselToken.Token;
+            function = func;
+            cancellationToken = threadPool.cancellationToken.Token;
         }
 
         public bool IsFinished
@@ -158,28 +174,9 @@ public class MyThreadPool
                         pool.queue.Enqueue(continuation);
                         Monitor.Pulse(objectLock);
                     }
-
-                    pool.workAvailable.Set();
                 }
+
                 continuations.Clear();
-            }
-        }
-
-        private TResult GetResult()
-        {
-            lock (objectLock)
-            {
-                while (!IsFinished)
-                {
-                    Monitor.Wait(objectLock);
-                }
-
-                if (taskException != null)
-                {
-                    throw new AggregateException(taskException);
-                }
-                
-                return taskResult ?? throw new InvalidOperationException("Task completed without a result.");
             }
         }
 
@@ -204,14 +201,3 @@ public class MyThreadPool
         }
     }
 }
-
-/// <summary>
-/// MyTask interface.
-/// </summary>
-/// <typeparam name="TResult"></typeparam>
-public interface IMyTask<out TResult>
-{
-    bool IsFinished { get; }
-    TResult Result { get; }
-    IMyTask<TNewResult> ContinueWith<TNewResult>(Func<TResult, TNewResult> func);
-} 
