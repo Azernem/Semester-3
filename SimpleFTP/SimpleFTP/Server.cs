@@ -1,8 +1,8 @@
 ﻿// <copyright file="Server.cs" company="NematMusaev">
-// Copyright (c) PlaceholderCompany. All rights reserved.
+// Copyright (c) Nemat Musaev. All rights reserved.
 // </copyright>
 
-namespace NetWork;
+namespace Server;
 
 using System.Threading;
 using System.Net;
@@ -15,7 +15,7 @@ using System.Dynamic;
 /// </summary>
 public class Server
 {
-    private readonly CancellationTokenSource cansellToken = new ();
+    private readonly CancellationTokenSource cancellationToken = new ();
     private int port;
     private IPAddress ipAddress;
 
@@ -28,26 +28,35 @@ public class Server
     {
         this.ipAddress = ipAddress;
         this.port = port;
-        this.Run();
+        Run();
+    }
+
+    /// <summary>
+    /// Start connecting.
+    /// </summary>
+    /// <returns>task.</returns>
+    public async Task Start()
+    {
+        await this.Run();
     }
 
     /// <summary>
     /// executing commands.
     /// </summary>
     /// <returns>task.</returns>
-    public async Task Run()
+    private async Task Run()
     {
         using var listener = new TcpListener(this.ipAddress, this.port);
         listener.Start();
-        while (!this.cansellToken.Token.IsCancellationRequested)
+        while (!this.cancellationToken.Token.IsCancellationRequested)
         {
             using var socket = await listener.AcceptSocketAsync();
-            await Task.Run(async () =>
+            var task = Task.Run(async () =>
             {
                 using var stream = new NetworkStream(socket);
                 using var reader = new StreamReader(stream);
-                var stringcommand = await reader.ReadLineAsync() ?? throw new NullReferenceException("stringcomand cant be null");
-                var command = stringcommand.Split(' ');
+                var stringCommand = await reader.ReadLineAsync() ?? throw new InvalidOperationException("stringcomand cant be null");
+                var command = stringCommand.Split(' ');
 
                 try
                 {
@@ -68,7 +77,9 @@ public class Server
                             await this.Get(path, stream);
                             break;
                         default:
-                            throw new ArgumentException("Command must be either 1 or 2.");
+                            var writer = new StreamWriter(stream);
+                            await writer.WriteLineAsync("Command must be either 1 or 2.");
+                            break;
                     }
                 }
                 catch (FileNotFoundException ex)
@@ -81,10 +92,9 @@ public class Server
                     Console.WriteLine(ex.Message);
                     Console.WriteLine("not directory");
                 }
-                catch (ArgumentException ex)
+                catch (Exception ex)
                 {
                     Console.WriteLine(ex.Message);
-                    Console.WriteLine("Command must be either 1 or 2.");
                 }
 
                 socket.Close();
@@ -95,10 +105,7 @@ public class Server
     /// <summary>
     /// interrupts working.
     /// </summary>
-    public void Stop()
-    {
-        this.cansellToken.Cancel();
-    }
+    public void Stop() => this.cancellationToken.Cancel();
 
     private async Task SendError(Stream stream)
     {
@@ -109,38 +116,38 @@ public class Server
 
     private async Task List(string path, Stream stream)
     {
-            if (!Directory.Exists(path))
-            {
-                throw new DirectoryNotFoundException("not directory");
-            }
+        if (!Directory.Exists(path))
+        {
+            throw new DirectoryNotFoundException("not directory");
+        }
 
-            var directory = new DirectoryInfo(path);
-            var files = Directory.GetFileSystemEntries(path);
-            var builder = new StringBuilder($"{files.Length} ");
+        var directory = new DirectoryInfo(path);
+        var files = Directory.GetFileSystemEntries(path);
+        Array.Sort(files);
+        var builder = new StringBuilder($"{files.Length} ");
 
-            foreach (var file in files)
-            {
-                builder.Append($"{Path.GetFileName(file)} {Directory.Exists(file).ToString().ToLower()} ");
-            }
+        foreach (var file in files)
+        {
+            builder.Append($"{Path.GetFileName(file)} {Directory.Exists(file).ToString().ToLower()} ");
+        }
 
-            using var writer = new StreamWriter(stream);
-            await writer.WriteLineAsync(builder.ToString()[..^1] + "\n");
-            await writer.FlushAsync();
+        using var writer = new StreamWriter(stream);
+        await writer.WriteLineAsync(builder.ToString()[..^1] + "\n");
+        await writer.FlushAsync();
     }
 
     private async Task Get(string path, Stream stream)
     {
-            if (!File.Exists(path))
-            {
-                throw new FileNotFoundException("not file");
-            }
+        if (!File.Exists(path))
+        {
+            throw new FileNotFoundException("not file");
+        }
 
-            var file = new FileInfo(path);
-            var builder = new StringBuilder($"{file.Length} ");
-            var info = await File.ReadAllBytesAsync(path);
-            using var writer = new StreamWriter(stream);
-            builder.Append($"{Encoding.UTF8.GetString(info).ToString()}");
-            writer.Write(builder);
-            await writer.FlushAsync();
+        var file = new FileInfo(path);
+        var builder = new StringBuilder($"{file.Length} ");
+        var info = await File.ReadAllBytesAsync(path);
+        using var writer = new StreamWriter(stream);
+        await stream.WriteAsync(info);
+        await writer.FlushAsync();
     }
 }
