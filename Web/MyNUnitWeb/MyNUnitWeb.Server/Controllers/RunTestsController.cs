@@ -12,7 +12,7 @@ public class TestController : ControllerBase
 
     public TestController(IWebHostEnvironment environment, HistoryDbContext databaseContext)
     {
-        databaseContext = databaseContext; 
+        this.databaseContext = databaseContext; 
         uploadDirectory = new DirectoryInfo("uploaded_files"); 
     }
 
@@ -27,7 +27,7 @@ public class TestController : ControllerBase
         var testReports = testRunner.RunTests();
         var assemblyResults = testReports.Select(report => new AssemblyResult(report)).ToArray();
 
-        foreach (var assemblyResult in assemblyResults)
+        Parallel.ForEach(assemblyResults, assemblyResults => {
         {
             if (assemblyResult.ClassResults.Count > 0)
             {
@@ -44,6 +44,7 @@ public class TestController : ControllerBase
                 }
             }
         }
+        });
 
         testRunner = null;
         foreach (var file in uploadDirectory.GetFiles())
