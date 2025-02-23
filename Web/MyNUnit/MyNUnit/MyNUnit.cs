@@ -258,7 +258,7 @@ public class MyNUnit
         report.TimeElapsed = stopwatch.ElapsedMilliseconds;
         return report;
     }
-}
+
 
 /// <summary>
 /// TestReport class.
