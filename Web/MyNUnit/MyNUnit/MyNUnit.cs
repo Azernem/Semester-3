@@ -137,7 +137,7 @@ public class MyNUnit
             Console.WriteLine("log error " + e.Message);
         }
     }
-}
+
 
     /// <summary>
     /// Runs tests for a type.
@@ -190,6 +190,12 @@ public class MyNUnit
     private TestReport ExecuteTest(MethodInfo method, Type type)
     {
         var testAttribute = method.GetCustomAttribute<TestAttribute>();
+        var report = new TestReport
+        {
+            MethodName = method.Name,
+            State = TestResult.FAILED,
+        };
+
         try {
             var instance = Activator.CreateInstance(type);
         }
@@ -200,12 +206,6 @@ public class MyNUnit
         }
 
         var stopwatch = new Stopwatch();
-        
-        var report = new TestReport
-        {
-            MethodName = method.Name,
-            State = TestResult.FAILED,
-        };
 
         if (testAttribute?.Ignore != null)
         {
@@ -216,6 +216,7 @@ public class MyNUnit
 
         try
         {
+            var instance = Activator.CreateInstance(type);
             ExecuteMethods<Before>(type, instance);
             stopwatch.Start();
 
@@ -258,6 +259,7 @@ public class MyNUnit
         report.TimeElapsed = stopwatch.ElapsedMilliseconds;
         return report;
     }
+}
 
 
 /// <summary>
@@ -355,5 +357,13 @@ public class AssemblyReport
     /// Gets or sets class results.
     /// </summary>
     public List<ClassReport> ClassReports { get; set; } = new ();
+}
+
+class Program
+{
+    public static void Main(string[] args)
+    {
+
+    }
 }
 
