@@ -27,7 +27,7 @@ public class TestController : ControllerBase
         var testReports = testRunner.RunTests();
         var assemblyResults = testReports.Select(report => new AssemblyResult(report)).ToArray();
 
-        Parallel.ForEach(assemblyResults, assemblyResults => {
+        Parallel.ForEach(assemblyResults, assemblyResult => {
         {
             if (assemblyResult.ClassResults.Count > 0)
             {
