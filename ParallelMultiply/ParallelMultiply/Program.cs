@@ -3,7 +3,7 @@
 // </copyright>
 
 using System.Diagnostics;
-using ParallelMultiplication;
+using FileMatrix;
 
 var n = 100;
 var sizes = new List<int>();
@@ -19,17 +19,17 @@ for (var i = 20; i < 130; i += 10)
     var parallelTimes = new double[n];
     double seqStandartDaviation;
     double parallelStandartDaviation;
-    var matrix = FileMatrix.GenerateMatrix(currentSize, currentSize);
+    var matrix = FileMatrix.FileMatrix.GenerateMatrix(currentSize, currentSize);
 
     for (var j = 0; j < n; j++)
     {
         stopwatch.Start();
-        MatrixOperation.SequentiallyMultiply(matrix, matrix);
+        MatrixOperation.MatrixOperation.SequentiallyMultiply(matrix, matrix);
         stopwatch.Stop();
         sequentallyTimes[j] = stopwatch.ElapsedMilliseconds;
         stopwatch.Reset();
         stopwatch.Start();
-        MatrixOperation.ParallelMultiply(matrix, matrix);
+        MatrixOperation.MatrixOperation.ParallelMultiply(matrix, matrix);
         stopwatch.Stop();
         parallelTimes[j] = stopwatch.ElapsedMilliseconds;
         stopwatch.Reset();
