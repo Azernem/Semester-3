@@ -1,10 +1,11 @@
 // <copyright file="MatrixOperation.cs" company="NematMusaev">
 // Copyright (c) PlaceholderCompany. All rights reserved.
 // </copyright>
-namespace ParallelMultiplication;
+namespace MatrixOperation;
 
 using System.Numerics;
 using System;
+using FileMatrix;
 
 /// <summary>
 /// Class about multiplication of two matrixes.
@@ -14,8 +15,8 @@ public static class MatrixOperation
     /// <summary>
     /// Constructor.
     /// </summary>
-    /// <param name="matrix1">First matrix of multiplication, multiplier. </param>
-    /// <param name="matrix2">Second matrix of multiplication, multiplier.</param>
+    /// <param name="matrix1">One matrix of multipliers in multiplication, multiplier one. </param>
+    /// <param name="matrix2">One matrix of multipliers in multiplication, multiplier two.</param>
 
     /// <summary>
     /// Compare two matrixes at size.
