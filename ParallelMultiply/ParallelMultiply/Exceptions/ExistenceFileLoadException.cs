@@ -2,7 +2,7 @@
 // Copyright (c) PlaceholderCompany. All rights reserved.
 // </copyright>
 
-namespace ParallelMultiplication;
+namespace FileMatrix;
 
 /// <summary>
 /// Existence File Load Exception.
@@ -10,10 +10,9 @@ namespace ParallelMultiplication;
 public class ExistenceFileLoadException : Exception
 {
     /// <summary>
-    /// constructer.
+    /// Initializes a new instance of the <see cref="ExistenceFileLoadException"/> class.
     /// </summary>
-    /// <param name="message">mesage exception. </param>
-    /// <param name="message">message exception.</param>
+    /// <param name="message">message.</param>
     public ExistenceFileLoadException(string message)
     : base(message)
     {

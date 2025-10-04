@@ -2,7 +2,7 @@
 // Copyright (c) PlaceholderCompany. All rights reserved.
 // </copyright>
 
-namespace ParallelMultiplication;
+namespace FileMatrix;
 
 /// <summary>
 /// Empty File Exception.
@@ -10,9 +10,9 @@ namespace ParallelMultiplication;
 public class EmptyFileException : Exception
 {
     /// <summary>
-    /// Constructer.
+    /// Initializes a new instance of the <see cref="EmptyFileException"/> class.
     /// </summary>
-    /// <param name="message">message exception.</param>
+    /// <param name="message">message.</param>
     public EmptyFileException()
     {
     }

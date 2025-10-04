@@ -1,7 +1,7 @@
 // <copyright file="FileMatrix.cs" company="NematMusaev">
 // Copyright (c) PlaceholderCompany. All rights reserved.
 // </copyright>
-namespace ParallelMultiplication;
+namespace FileMatrix;
 
 using System.Text;
 using System.Threading;
@@ -11,6 +11,25 @@ using System.Threading;
 /// </summary>
 public class FileMatrix
 {
+    private static Random random = new ();
+
+    /// <summary>
+    /// matrix in file.
+    /// </summary>
+    private int[,] matrix;
+    private string path;
+
+    /// <summary>
+    /// Initializes a new instance of the <see cref="FileMatrix"/> class.
+    /// </summary>
+    /// <param name="path">path where there is matrix. </param>
+    public FileMatrix(string path)
+    {
+        this.path = path;
+        this.matrix = new int[0, 0];
+        this.CreateMatrix();
+    }
+
     /// <summary>
     /// Write matrix to file.
     /// </summary>
@@ -61,28 +80,7 @@ public class FileMatrix
     /// </summary>
     /// <returns>file matrix.</returns>
     public int[,] GetMatrix()
-    {
-        return this.matrix;
-    }
-
-    private static Random random = new ();
-
-    /// <summary>
-    /// matrix in file.
-    /// </summary>
-    private int[,] matrix;
-    private string path;
-
-    /// <summary>
-    /// Constructor.
-    /// </summary>
-    /// <param name="path">path where there is matrix. </param>
-    public FileMatrix(string path)
-    {
-        this.path = path;
-        this.matrix = new int[0, 0];
-        this.CreateMatrix();
-    }
+        => this.matrix;
 
     /// <summary>
     /// Creates matrix with particular file and gets exception.
@@ -108,7 +106,7 @@ public class FileMatrix
 
         for (int i = 0; i < strings.Length; i++)
         {
-            if (!(strings[i].Split(new char[] { ' ', ',' }).Length == this.matrix.GetLength(1)) || strings[0] == String.Empty)
+            if (!(strings[i].Split(new char[] { ' ', ',' }).Length == this.matrix.GetLength(1)) || strings[0] == string.Empty)
             {
                 throw new IncorrrectSizeException("Incorrect size");
             }
@@ -117,7 +115,7 @@ public class FileMatrix
             {
                 if (!int.TryParse(strings[i].Split(new char[] { ' ', ',' })[j], out this.matrix[i, j]))
                 {
-                    throw new AnotherTypeException($"Value '{this.matrix[i, j]}' at row {i} and column {j} isnt a valid integer.");
+                    throw new InvalidIntegerException($"Value '{this.matrix[i, j]}' at row {i} and column {j} isnt a valid integer.");
                 }
             }
         }

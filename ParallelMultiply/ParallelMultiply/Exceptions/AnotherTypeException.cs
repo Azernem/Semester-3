@@ -1,19 +1,17 @@
 // <copyright file="AnotherTypeException.cs" company="NematMusaev">
 // Copyright (c) PlaceholderCompany. All rights reserved.
 // </copyright>
-
-namespace ParallelMultiplication;
-
+namespace FileMatrix;
 /// <summary>
 /// Another Type Exception. invalid integer exception.
 /// </summary>
-public class AnotherTypeException : Exception
+public class InvalidIntegerException : Exception
 {
     /// <summary>
-    /// Constructer.
+    /// Initializes a new instance of the <see cref="InvalidIntegerException"/> class.
     /// </summary>
-    /// <param name="message">mesage exception. </param>
-    public AnotherTypeException(string message)
+    /// <param name="message">message.</param>
+    public InvalidIntegerException(string message)
     : base(message)
     {
     }

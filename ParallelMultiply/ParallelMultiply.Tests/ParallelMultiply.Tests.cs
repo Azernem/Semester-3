@@ -4,7 +4,8 @@
 
 namespace ParallelMultiply.Tests;
 
-using ParallelMultiplication;
+using FileMatrix;
+using MatrixOperation;
 
 /// <summary>
 /// tests matrixes and operation of matrixes.
@@ -55,7 +56,7 @@ public class Tests
     public void CheckMatrixTypeTest()
     {
         string path1 = "../../../CheckMatrixType.txt";
-        Assert.Throws<AnotherTypeException>(() => new FileMatrix(path1));
+        Assert.Throws<InvalidIntegerException>(() => new FileMatrix(path1));
     }
 
     /// <summary>

@@ -1,8 +1,7 @@
 // <copyright file="CompatibilityException.cs" company="NematMusaev">
 // Copyright (c) PlaceholderCompany. All rights reserved.
 // </copyright>
-
-namespace ParallelMultiplication;
+namespace FileMatrix;
 
 /// <summary>
 /// Сompatibility Exception.
@@ -10,10 +9,11 @@ namespace ParallelMultiplication;
 public class СompatibilityException : Exception
 {
     /// <summary>
-    /// constructer.
+    /// Initializes a new instance of the <see cref="СompatibilityException"/> class.
     /// </summary>
     /// <param name="message">message.</param>
-    public СompatibilityException(string message): base(message)
+    public СompatibilityException(string message) 
+    : base(message)
     {
     }
 }
