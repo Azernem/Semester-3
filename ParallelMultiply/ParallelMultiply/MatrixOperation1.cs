@@ -1,12 +1,11 @@
 // <copyright file="MatrixOperation.cs" company="NematMusaev">
 // Copyright (c) PlaceholderCompany. All rights reserved.
 // </copyright>
-namespace MatrixOperation;
+namespace ParallelMultiplication;
 
 using System.Numerics;
 using System;
 using FileMatrix;
-
 /// <summary>
 /// Class about multiplication of two matrixes.
 /// </summary>
@@ -15,18 +14,18 @@ public static class MatrixOperation
     /// <summary>
     /// Constructor.
     /// </summary>
-    /// <param name="matrix1">One matrix of multipliers in multiplication, multiplier one. </param>
-    /// <param name="matrix2">One matrix of multipliers in multiplication, multiplier two.</param>
+    /// <param name="matrix1">First matrix of multiplication, multiplier. </param>
+    /// <param name="matrix2">Second matrix of multiplication, multiplier.</param>
 
     /// <summary>
     /// Compare two matrixes at size.
     /// </summary>
-    /// <exception cref="СompatibilityException">Сompatibility matrix exceptio</exception>
+    /// <exception cref="CompatibilityException">Сompatibility matrix exceptio</exception>
     public static void Compare(int[,] matrix1, int[,] matrix2)
     {
         if (!(matrix1.GetLength(1) == matrix2.GetLength(0)))
         {
-            throw new СompatibilityException("matrixes arent equal");
+            throw new CompatibilityException("matrixes arent equal");
         }
     }
 

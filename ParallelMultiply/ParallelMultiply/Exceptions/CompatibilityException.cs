@@ -6,13 +6,13 @@ namespace FileMatrix;
 /// <summary>
 /// Сompatibility Exception.
 /// </summary>
-public class СompatibilityException : Exception
+public class CompatibilityException : Exception
 {
     /// <summary>
-    /// Initializes a new instance of the <see cref="СompatibilityException"/> class.
+    /// Initializes a new instance of the <see cref="CompatibilityException"/> class.
     /// </summary>
     /// <param name="message">message.</param>
-    public СompatibilityException(string message) 
+    public CompatibilityException(string message)
     : base(message)
     {
     }

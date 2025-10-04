@@ -4,6 +4,7 @@
 
 using System.Diagnostics;
 using FileMatrix;
+using ParallelMultiplication;
 
 var n = 100;
 var sizes = new List<int>();
@@ -24,12 +25,12 @@ for (var i = 20; i < 130; i += 10)
     for (var j = 0; j < n; j++)
     {
         stopwatch.Start();
-        MatrixOperation.MatrixOperation.SequentiallyMultiply(matrix, matrix);
+        MatrixOperation.SequentiallyMultiply(matrix, matrix);
         stopwatch.Stop();
         sequentallyTimes[j] = stopwatch.ElapsedMilliseconds;
         stopwatch.Reset();
         stopwatch.Start();
-        MatrixOperation.MatrixOperation.ParallelMultiply(matrix, matrix);
+        MatrixOperation.ParallelMultiply(matrix, matrix);
         stopwatch.Stop();
         parallelTimes[j] = stopwatch.ElapsedMilliseconds;
         stopwatch.Reset();
