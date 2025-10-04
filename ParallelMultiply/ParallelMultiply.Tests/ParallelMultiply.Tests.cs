@@ -5,7 +5,7 @@
 namespace ParallelMultiply.Tests;
 
 using FileMatrix;
-using MatrixOperation;
+using ParallelMultiplication;
 
 /// <summary>
 /// tests matrixes and operation of matrixes.
@@ -69,7 +69,7 @@ public class Tests
         string path2 = "../../../Size.txt";
         var fileMatrix1 = new FileMatrix(path1);
         var fileMatrix2 = new FileMatrix(path2);
-        Assert.Throws<СompatibilityException>(() => MatrixOperation.ParallelMultiply(fileMatrix1.GetMatrix(), fileMatrix2.GetMatrix()));
+        Assert.Throws<CompatibilityException>(() => MatrixOperation.ParallelMultiply(fileMatrix1.GetMatrix(), fileMatrix2.GetMatrix()));
     }
 
     /// <summary>
@@ -91,7 +91,7 @@ public class Tests
     {
         var matrix1 = new int[,] { { 1, 2, 3 }, { 3, 3, 3 } };
         var matrix2 = new int[,] { { 1, 2 }, { 3, 3 } };
-        Assert.Throws<СompatibilityException>(() => MatrixOperation.Compare(matrix1, matrix2));
+        Assert.Throws<CompatibilityException>(() => MatrixOperation.Compare(matrix1, matrix2));
     }
 
     /// <summary>
