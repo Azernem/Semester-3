@@ -1,0 +1,130 @@
+﻿
+using Microsoft.EntityFrameworkCore;
+using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Migrations;
+using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
+using MyNUnitWeb.Server.Data;
+
+
+namespace MyNUnitWeb.Server.Migrations
+{
+    [DbContext(typeof(HistoryDbContext))]
+    [Migration("20240213024355_InitialCreate")]
+    partial class InitialCreate
+    {
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
+        {
+            modelBuilder.HasAnnotation("ProductVersion", "8.0.1");
+
+            modelBuilder.Entity("MyNUnitWeb.Server.Data.AssemblyResult", b =>
+                {
+                    b.Property<int>("AssemblyResultId")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("INTEGER");
+
+                    b.Property<string>("AssemblyName")
+                        .IsRequired()
+                        .HasColumnType("TEXT");
+
+                    b.Property<int>("FailedTests") 
+                        .HasColumnType("INTEGER");
+
+                    b.Property<int>("IgnoredTests")
+                        .HasColumnType("INTEGER");
+
+                    b.Property<int>("PassedTests")
+                        .HasColumnType("INTEGER");
+
+                    b.HasKey("AssemblyResultId");
+
+                    b.ToTable("Assemblies");
+                });
+
+            modelBuilder.Entity("MyNUnitWeb.Server.Data.ClassResult", b =>
+                {
+                    b.Property<int>("ClassResultId")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("INTEGER");
+
+                    b.Property<int>("AssemblyResultId")
+                        .HasColumnType("INTEGER");
+
+                    b.Property<string>("ClassName")
+                        .IsRequired()
+                        .HasColumnType("TEXT");
+
+                    b.Property<string>("ErrorReason")
+                        .HasColumnType("TEXT");
+
+                    b.HasKey("ClassResultId");
+
+                    b.HasIndex("AssemblyResultId");
+
+                    b.ToTable("Classes");
+                });
+
+            modelBuilder.Entity("MyNUnitWeb.Server.Data.MethodResult", b =>
+                {
+                    b.Property<int>("MethodResultId")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("INTEGER");
+
+                    b.Property<int>("ClassResultId")
+                        .HasColumnType("INTEGER");
+
+                    b.Property<string>("ExpectedResult")
+                        .HasColumnType("TEXT");
+
+                    b.Property<string>("MethodName")
+                        .IsRequired()
+                        .HasColumnType("TEXT");
+
+                    b.Property<string>("ErrorReason")
+                        .HasColumnType("TEXT");
+
+                    b.Property<int>("TestStatus")
+                        .HasColumnType("INTEGER");
+
+                    b.Property<long>("TimeElapsed")
+                        .HasColumnType("INTEGER");
+
+                    b.Property<string>("ActualResult")
+                        .HasColumnType("TEXT");
+
+                    b.HasKey("MethodResultId");
+
+                    b.HasIndex("ClassResultId");
+
+                    b.ToTable("Methods");
+                });
+
+            modelBuilder.Entity("MyNUnitWeb.Server.Data.ClassResult", b =>
+                {
+                    b.HasOne("MyNUnitWeb.Server.Data.AssemblyResult", null)
+                        .WithMany("ClassResults")
+                        .HasForeignKey("AssemblyResultId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+                });
+
+            modelBuilder.Entity("MyNUnitWeb.Server.Data.MethodResult", b =>
+                {
+                    b.HasOne("MyNUnitWeb.Server.Data.ClassResult", null)
+                        .WithMany("MethodResults")
+                        .HasForeignKey("ClassResultId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+                });
+
+            modelBuilder.Entity("MyNUnitWeb.Server.Data.AssemblyResult", b =>
+                {
+                    b.Navigation("ClassResults");
+                });
+
+            modelBuilder.Entity("MyNUnitWeb.Server.Data.ClassResult", b =>
+                {
+                    b.Navigation("MethodResults");
+                });
+        }
+    }
+}
