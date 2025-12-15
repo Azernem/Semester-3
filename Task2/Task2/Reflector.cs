@@ -25,7 +25,7 @@ public class Reflector
         var aMethods = a.GetMethods(BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.Instance | BindingFlags.Static);
         var bMethods = b.GetMethods(BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.Instance | BindingFlags.Static);
 
-        stringBuilder.AppendLine($"differences between {a.Name} and {b.Name}:");
+        stringBuilder.AppendLine($"differences between {a.Name}  and {b.Name}:");
 
         foreach (var field in aFields)
         {
